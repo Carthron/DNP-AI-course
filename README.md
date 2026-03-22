@@ -1,2 +1,1538 @@
 # DNP-AI-Clinical Application Lesson
 Interactive Activity Step into the role of a DNP on rounds and respond to three real-world clinical AI alerts. This 15–20 minute scenario-based activity puts you inside the decision moment — no papers, no passive reading. Earn up to 300 points.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Rounds — Week 2 Activity</title>
+<style>
+  :root {
+    --navy: #0D2137;
+    --navy2: #1B3A5C;
+    --teal: #0E9AA7;
+    --teal2: #0ABFCC;
+    --gold: #F0A500;
+    --coral: #E05252;
+    --green: #27AE60;
+    --purple: #7D3C98;
+    --offwhite: #F0F4F8;
+    --lgray: #E2E8F0;
+    --dktext: #1A2B3C;
+    --mgray: #64748B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--navy);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header bar ─────────────────────────────────────────── */
+  .topbar {
+    width: 100%;
+    background: var(--navy2);
+    border-bottom: 3px solid var(--teal);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .badge-dnp {
+    background: var(--teal);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .topbar-title { font-size: 15px; font-weight: 600; color: #fff; }
+  .topbar-sub { font-size: 11px; color: #8899AA; margin-top: 1px; }
+  .score-pill {
+    background: var(--navy);
+    border: 1.5px solid var(--gold);
+    border-radius: 20px;
+    padding: 5px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .score-label { font-size: 10px; color: var(--gold); letter-spacing: 1px; font-weight: 700; }
+  .score-num { font-size: 20px; font-weight: 800; color: var(--gold); min-width: 36px; text-align: right; }
+  .progress-bar-wrap {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+  }
+  .progress-bar-fill {
+    height: 4px;
+    background: linear-gradient(90deg, var(--teal), var(--teal2));
+    transition: width 0.5s ease;
+  }
+
+  /* ── Main container ─────────────────────────────────────── */
+  .main {
+    width: 100%;
+    max-width: 820px;
+    padding: 28px 20px 60px;
+  }
+
+  /* ── Screens ────────────────────────────────────────────── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── Intro screen ───────────────────────────────────────── */
+  .intro-card {
+    background: var(--navy2);
+    border: 1px solid rgba(14,154,167,0.3);
+    border-radius: 16px;
+    padding: 36px 40px;
+    text-align: center;
+  }
+  .intro-icon { font-size: 52px; margin-bottom: 12px; }
+  .intro-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .intro-subtitle {
+    font-size: 15px;
+    color: var(--teal2);
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+  .intro-brief {
+    background: rgba(14,154,167,0.1);
+    border-left: 3px solid var(--teal);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 14px;
+    color: #CBD5E1;
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+  .intro-brief strong { color: #fff; }
+  .stat-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .stat-chip {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    color: #CBD5E1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stat-chip span { font-size: 16px; }
+
+  /* ── Scenario screen ────────────────────────────────────── */
+  .scenario-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .scenario-num {
+    background: var(--teal);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .scenario-title-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+  }
+
+  /* EHR alert box */
+  .ehr-alert {
+    border-radius: 12px;
+    margin-bottom: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .ehr-topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+  }
+  .ehr-body { padding: 18px 20px; background: #0B1929; }
+  .ehr-patient-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .ehr-field { font-size: 12px; color: #8899AA; }
+  .ehr-field strong { color: #CBD5E1; font-size: 13px; display: block; margin-top: 2px; }
+  .ehr-alert-box {
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .ehr-alert-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .ehr-alert-text { font-size: 13.5px; line-height: 1.6; }
+  .ehr-alert-text .alert-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .ehr-vitals {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .vital-chip {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .vital-label { font-size: 10px; color: #8899AA; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .vital-val { font-size: 16px; font-weight: 700; }
+  .vital-val.abnormal { color: var(--coral); }
+  .vital-val.normal { color: #CBD5E1; }
+  .vital-val.marginal { color: var(--gold); }
+
+  /* Questions */
+  .question-block {
+    background: var(--navy2);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .question-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--teal);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .question-label .pts-badge {
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-left: auto;
+  }
+  .question-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 13px 18px;
+    text-align: left;
+    font-size: 13.5px;
+    color: #CBD5E1;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+    width: 100%;
+  }
+  .option-btn:not(.answered):hover {
+    background: rgba(14,154,167,0.12);
+    border-color: var(--teal);
+    color: #fff;
+  }
+  .option-letter {
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .option-btn.correct {
+    background: rgba(39,174,96,0.15);
+    border-color: var(--green);
+    color: #fff;
+  }
+  .option-btn.correct .option-letter { background: var(--green); color: #fff; }
+  .option-btn.incorrect {
+    background: rgba(224,82,82,0.12);
+    border-color: var(--coral);
+    color: #8899AA;
+    text-decoration: line-through;
+  }
+  .option-btn.incorrect .option-letter { background: var(--coral); color: #fff; }
+  .option-btn.missed {
+    background: rgba(39,174,96,0.08);
+    border-color: rgba(39,174,96,0.4);
+    color: #8899AA;
+  }
+  .option-btn.missed .option-letter { background: rgba(39,174,96,0.3); color: var(--green); }
+  .option-btn.answered { cursor: default; pointer-events: none; }
+
+  /* Feedback */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-top: 14px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    display: none;
+  }
+  .feedback-box.correct-fb {
+    background: rgba(39,174,96,0.12);
+    border-left: 3px solid var(--green);
+    color: #A7F3D0;
+  }
+  .feedback-box.incorrect-fb {
+    background: rgba(224,82,82,0.1);
+    border-left: 3px solid var(--coral);
+    color: #FECACA;
+  }
+  .feedback-box .fb-header {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .feedback-box.show { display: block; }
+  .points-flash {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+  }
+
+  /* Reflection */
+  .reflection-block {
+    background: rgba(125,60,152,0.12);
+    border: 1px solid rgba(125,60,152,0.35);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-top: 18px;
+    display: none;
+  }
+  .reflection-block.show { display: block; }
+  .reflection-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #C39BD3;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .reflection-q {
+    font-size: 14px;
+    font-weight: 600;
+    color: #E8DAEF;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .reflection-textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(125,60,152,0.4);
+    border-radius: 8px;
+    color: #E8DAEF;
+    font-size: 13px;
+    font-family: inherit;
+    padding: 12px 14px;
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+  .reflection-textarea:focus {
+    outline: none;
+    border-color: var(--purple);
+  }
+  .reflection-textarea::placeholder { color: #9370AB; }
+  .char-count { font-size: 10px; color: #9370AB; text-align: right; margin-top: 4px; }
+
+  /* Buttons */
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+  }
+  .btn-primary {
+    background: var(--teal);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #0ABFCC; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-gold {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .btn-gold:hover { background: #F8B800; transform: translateY(-1px); }
+  .btn-next {
+    margin-top: 22px;
+    display: none;
+  }
+  .btn-next.show { display: inline-flex; }
+  .btn-full { width: 100%; justify-content: center; }
+
+  /* Scene divider */
+  .scene-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 28px 0 22px;
+    color: #475569;
+    font-size: 11px;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+  .scene-divider::before, .scene-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* Results screen */
+  .results-card {
+    background: var(--navy2);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .results-header {
+    background: linear-gradient(135deg, var(--navy) 0%, #0A3050 100%);
+    border-bottom: 3px solid var(--teal);
+    padding: 32px 36px;
+    text-align: center;
+  }
+  .results-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .results-sub { font-size: 13px; color: #8899AA; margin-bottom: 24px; }
+  .big-score {
+    font-size: 72px;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .big-score-label { font-size: 12px; color: #8899AA; letter-spacing: 1px; }
+  .results-body { padding: 28px 32px; }
+  .grade-bar {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    height: 10px;
+    margin: 16px 0 24px;
+    overflow: hidden;
+  }
+  .grade-fill {
+    height: 10px;
+    border-radius: 8px;
+    transition: width 1.2s ease;
+    background: linear-gradient(90deg, var(--teal), var(--teal2));
+  }
+  .result-rows { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .result-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  .result-icon { font-size: 18px; flex-shrink: 0; width: 28px; text-align: center; }
+  .result-label { font-size: 13px; color: #CBD5E1; flex: 1; }
+  .result-pts { font-size: 14px; font-weight: 700; color: var(--gold); min-width: 50px; text-align: right; }
+  .reflection-summary {
+    background: rgba(125,60,152,0.1);
+    border: 1px solid rgba(125,60,152,0.25);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 24px;
+  }
+  .reflection-summary h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #C39BD3;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+  .saved-reflection {
+    font-size: 12.5px;
+    color: #D7BDE2;
+    line-height: 1.6;
+    font-style: italic;
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    border-left: 2px solid var(--purple);
+  }
+  .saved-reflection-label {
+    font-size: 10px;
+    color: #9370AB;
+    font-style: normal;
+    margin-bottom: 4px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .educator-note {
+    background: rgba(14,154,167,0.08);
+    border: 1px solid rgba(14,154,167,0.2);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .educator-note h3 { font-size: 11px; font-weight: 700; color: var(--teal2); letter-spacing: 1px; margin-bottom: 8px; }
+  .educator-note p { font-size: 13px; color: #94A3B8; line-height: 1.6; }
+  .action-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* Floating score bump animation */
+  @keyframes scoreBump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+  .bump { animation: scoreBump 0.35s ease; }
+
+  /* Scenario transition */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeIn 0.4s ease; }
+
+  /* Progress steps */
+  .step-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: all 0.3s;
+  }
+  .step-dot.active { background: var(--teal); width: 24px; border-radius: 4px; }
+  .step-dot.done { background: rgba(14,154,167,0.5); }
+
+  /* Inline knowledge bits */
+  .know-bit {
+    display: flex;
+    gap: 10px;
+    background: rgba(240,165,0,0.08);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: #FDE68A;
+    line-height: 1.5;
+  }
+  .know-bit-icon { font-size: 15px; flex-shrink: 0; }
+
+  @media (max-width: 600px) {
+    .main { padding: 16px 14px 50px; }
+    .intro-card { padding: 24px 20px; }
+    .results-header { padding: 24px 20px; }
+    .results-body { padding: 20px 18px; }
+    .big-score { font-size: 56px; }
+    .action-row { flex-direction: column; }
+    .btn { width: 100%; justify-content: center; }
+  }
+
+  /* ── Print / Certificate styles ─────────────────────────── */
+  @media print {
+    body { background: #fff !important; color: #000 !important; }
+    .topbar, .progress-bar-wrap, .action-row, #studentName,
+    .btn, .educator-note { display: none !important; }
+    .results-card { border: none !important; box-shadow: none !important; }
+    .results-header { background: #0D2137 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .main { padding: 0 !important; max-width: 100% !important; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="badge-dnp">DNP</span>
+        <span class="topbar-title">AI Rounds</span>
+      </div>
+      <div class="topbar-sub">Week 2 · How Clinical AI Works</div>
+    </div>
+  </div>
+  <div class="score-pill">
+    <span class="score-label">SCORE</span>
+    <span class="score-num" id="scoreDisplay">0</span>
+  </div>
+</div>
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+</div>
+
+<div class="main">
+
+  <!-- ══════════════════════════════════════════════════════
+       SCREEN: INTRO
+  ══════════════════════════════════════════════════════ -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-card fade-in">
+      <div class="intro-icon">🏥</div>
+      <div class="intro-title">AI Rounds</div>
+      <div class="intro-subtitle">You're the DNP. The AI just fired an alert. What do you do?</div>
+      <div class="intro-brief">
+        It's Tuesday morning. You're rounding on a 28-bed medical-surgical floor. Your EHR has three AI-generated alerts waiting. For each one, you'll need to <strong>analyze the alert, identify what's happening under the hood</strong>, and make a clinically sound decision — then reflect on what it means for your practice.<br><br>
+        This isn't a test of memorization. It's a test of <strong>applied judgment</strong>.
+      </div>
+      <div class="stat-row">
+        <div class="stat-chip"><span>🕐</span> 15–20 min</div>
+        <div class="stat-chip"><span>🎯</span> 3 scenarios</div>
+        <div class="stat-chip"><span>⭐</span> Up to 300 pts</div>
+        <div class="stat-chip"><span>💬</span> 3 reflections</div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="startActivity()">
+        Begin Rounds ➜
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SCREEN: SCENARIO 1 — Sepsis Alert
+  ══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-s1">
+    <div class="fade-in">
+      <div class="step-dots">
+        <div class="step-dot active" id="dot1"></div>
+        <div class="step-dot" id="dot2"></div>
+        <div class="step-dot" id="dot3"></div>
+        <div class="step-dot" id="dot4"></div>
+      </div>
+
+      <div class="scenario-header">
+        <span class="scenario-num">SCENARIO 1 OF 3</span>
+        <span class="scenario-title-text">The Sepsis Score That Doesn't Add Up</span>
+      </div>
+
+      <!-- EHR Alert mockup -->
+      <div class="ehr-alert">
+        <div class="ehr-topbar" style="background:#1E293B;">
+          <span style="color:#64748B;">⬛</span>
+          <span style="color:#64748B;">⬛</span>
+          <span style="color:#64748B;">⬛</span>
+          <span style="color:#8899AA;font-weight:400;letter-spacing:0;">Epic EMR · Medical 4 West · Your Patients</span>
+        </div>
+        <div class="ehr-body">
+          <div class="ehr-patient-row">
+            <div class="ehr-field">Patient<strong>Margaret T., 67F</strong></div>
+            <div class="ehr-field">MRN<strong>#448821</strong></div>
+            <div class="ehr-field">Admit Dx<strong>UTI / dehydration</strong></div>
+            <div class="ehr-field">Day<strong>Hospital Day 2</strong></div>
+          </div>
+          <div class="ehr-alert-box" style="background:rgba(224,82,82,0.12);border:1px solid rgba(224,82,82,0.35);">
+            <div class="ehr-alert-icon">🔴</div>
+            <div class="ehr-alert-text">
+              <div class="alert-title" style="color:#FCA5A5;">SEPSIS ALERT — HIGH PRIORITY</div>
+              <div style="color:#FECACA;">Epic Deterioration Index score: <strong>78/100</strong></div>
+              <div style="color:#FCA5A5;font-size:12px;margin-top:4px;">AI probability of sepsis onset within 12 hours: 74% · Recommend sepsis bundle evaluation</div>
+            </div>
+          </div>
+          <div class="ehr-vitals">
+            <div class="vital-chip"><div class="vital-label">TEMP</div><div class="vital-val normal">37.4°C</div></div>
+            <div class="vital-chip"><div class="vital-label">HR</div><div class="vital-val marginal">101 bpm</div></div>
+            <div class="vital-chip"><div class="vital-label">BP</div><div class="vital-val normal">118/74</div></div>
+            <div class="vital-chip"><div class="vital-label">RR</div><div class="vital-val normal">16</div></div>
+            <div class="vital-chip"><div class="vital-label">SpO2</div><div class="vital-val normal">97%</div></div>
+            <div class="vital-chip"><div class="vital-label">WBC</div><div class="vital-val marginal">11.2 K/μL</div></div>
+            <div class="vital-chip"><div class="vital-label">Lactate</div><div class="vital-val normal">1.1 mmol/L</div></div>
+            <div class="vital-chip"><div class="vital-label">UO</div><div class="vital-val normal">0.7 mL/kg/hr</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q1a -->
+      <div class="question-block" id="q1a-block">
+        <div class="question-label">
+          QUESTION 1 <span>·</span> ML MECHANICS
+          <span class="pts-badge">50 PTS</span>
+        </div>
+        <div class="question-text">This sepsis alert is generated by a supervised machine learning model. What does "supervised" mean in this clinical context?</div>
+        <div class="options" id="q1a-options">
+          <button class="option-btn" onclick="answer('q1a', 'A', false)"><span class="option-letter">A</span>A physician "supervises" the AI in real time and approves each alert before it fires</button>
+          <button class="option-btn" onclick="answer('q1a', 'B', true)"><span class="option-letter">B</span>The algorithm was trained on historical patient records where sepsis outcomes were already labeled — it learned patterns that predict those labeled outcomes</button>
+          <button class="option-btn" onclick="answer('q1a', 'C', false)"><span class="option-letter">C</span>The model only fires when a nurse manually triggers it by entering vitals</button>
+          <button class="option-btn" onclick="answer('q1a', 'D', false)"><span class="option-letter">D</span>The algorithm is checked weekly by the IT department to ensure it's working properly</button>
+        </div>
+        <div class="feedback-box" id="q1a-feedback"></div>
+      </div>
+
+      <!-- Q1b -->
+      <div class="question-block" id="q1b-block" style="opacity:0.4;pointer-events:none;">
+        <div class="question-label">
+          QUESTION 2 <span>·</span> CLINICAL JUDGMENT
+          <span class="pts-badge">50 PTS</span>
+        </div>
+        <div class="question-text">Margaret's vitals are mostly reassuring. The AI shows 74% sepsis probability. As the DNP, what is your most appropriate next step?</div>
+        <div class="options" id="q1b-options">
+          <button class="option-btn" onclick="answer('q1b', 'A', false)"><span class="option-letter">A</span>Trust the AI score — order the full sepsis bundle immediately without bedside assessment</button>
+          <button class="option-btn" onclick="answer('q1b', 'B', false)"><span class="option-letter">B</span>Dismiss the alert — the patient looks fine and the AI is probably wrong</button>
+          <button class="option-btn" onclick="answer('q1b', 'C', true)"><span class="option-letter">C</span>Go to the bedside, perform your own clinical assessment, then decide whether the bundle is warranted — the AI informs your judgment, it doesn't replace it</button>
+          <button class="option-btn" onclick="answer('q1b', 'D', false)"><span class="option-letter">D</span>Ask the charge nurse to monitor the patient every 30 minutes and reassess in the morning</button>
+        </div>
+        <div class="feedback-box" id="q1b-feedback"></div>
+      </div>
+
+      <!-- Reflection 1 -->
+      <div class="reflection-block" id="reflect1">
+        <div class="reflection-label">💬 REFLECTION PROMPT</div>
+        <div class="reflection-q">Think about a time you've seen or experienced a clinical alert in your practice — AI-driven or not. What happened when clinicians trusted it automatically? What happened when they dismissed it automatically? What's the right middle ground?</div>
+        <textarea class="reflection-textarea" id="reflect1-text" placeholder="Type your reflection here... (there's no wrong answer)" oninput="updateChar('reflect1-text','char1')"></textarea>
+        <div class="char-count" id="char1">0 characters</div>
+      </div>
+
+      <button class="btn btn-primary btn-next" id="next1" onclick="goToScenario(2)">
+        Next Scenario ➜
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SCREEN: SCENARIO 2 — Radiology AI
+  ══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-s2">
+    <div class="fade-in">
+      <div class="step-dots">
+        <div class="step-dot done" id="dot1b"></div>
+        <div class="step-dot active" id="dot2b"></div>
+        <div class="step-dot" id="dot3b"></div>
+        <div class="step-dot" id="dot4b"></div>
+      </div>
+
+      <div class="scenario-header">
+        <span class="scenario-num" style="background:var(--purple);">SCENARIO 2 OF 3</span>
+        <span class="scenario-title-text">The Chest X-Ray the AI Said Was Fine</span>
+      </div>
+
+      <div class="ehr-alert">
+        <div class="ehr-topbar" style="background:#1E293B;">
+          <span style="color:#64748B;">⬛</span><span style="color:#64748B;">⬛</span><span style="color:#64748B;">⬛</span>
+          <span style="color:#8899AA;font-weight:400;letter-spacing:0;">Radiology PACS · AI-Assisted Read · Imaging Results</span>
+        </div>
+        <div class="ehr-body">
+          <div class="ehr-patient-row">
+            <div class="ehr-field">Patient<strong>James O., 54M</strong></div>
+            <div class="ehr-field">MRN<strong>#229043</strong></div>
+            <div class="ehr-field">Admit Dx<strong>Productive cough × 5 days, fever</strong></div>
+            <div class="ehr-field">Day<strong>ED Visit</strong></div>
+          </div>
+          <div class="ehr-alert-box" style="background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.3);">
+            <div class="ehr-alert-icon">🟢</div>
+            <div class="ehr-alert-text">
+              <div class="alert-title" style="color:#86EFAC;">AI CHEST X-RAY ANALYSIS — LOW CONCERN</div>
+              <div style="color:#BBF7D0;">No acute cardiopulmonary process identified</div>
+              <div style="color:#86EFAC;font-size:12px;margin-top:4px;">Model confidence: 88% · Pneumonia probability: 9% · Pending radiologist over-read (2–4 hrs)</div>
+            </div>
+          </div>
+          <div class="ehr-vitals">
+            <div class="vital-chip"><div class="vital-label">TEMP</div><div class="vital-val abnormal">38.9°C</div></div>
+            <div class="vital-chip"><div class="vital-label">HR</div><div class="vital-val marginal">104 bpm</div></div>
+            <div class="vital-chip"><div class="vital-label">BP</div><div class="vital-val normal">122/78</div></div>
+            <div class="vital-chip"><div class="vital-label">RR</div><div class="vital-val marginal">22</div></div>
+            <div class="vital-chip"><div class="vital-label">SpO2</div><div class="vital-val marginal">93%</div></div>
+            <div class="vital-chip"><div class="vital-label">WBC</div><div class="vital-val abnormal">18.4 K/μL</div></div>
+            <div class="vital-chip"><div class="vital-label">CRP</div><div class="vital-val abnormal">142 mg/L</div></div>
+            <div class="vital-chip"><div class="vital-label">O2 Req</div><div class="vital-val abnormal">2L NC</div></div>
+          </div>
+          <div class="know-bit">
+            <span class="know-bit-icon">📋</span>
+            <span>James is an obese patient (BMI 41). His attending is reviewing the AI result and is leaning toward discharge with a prescription.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="question-block" id="q2a-block">
+        <div class="question-label">
+          QUESTION 3 <span>·</span> ML TYPE
+          <span class="pts-badge">50 PTS</span>
+        </div>
+        <div class="question-text">The chest X-ray AI uses deep learning — a subset of supervised ML. What is the key characteristic of deep learning that makes it useful for medical imaging?</div>
+        <div class="options" id="q2a-options">
+          <button class="option-btn" onclick="answer('q2a','A',false)"><span class="option-letter">A</span>It uses rules written by radiologists to identify specific patterns, making it very transparent</button>
+          <button class="option-btn" onclick="answer('q2a','B',false)"><span class="option-letter">B</span>It requires very little training data and works well even on rare conditions</button>
+          <button class="option-btn" onclick="answer('q2a','C',true)"><span class="option-letter">C</span>It automatically learns hierarchical visual features (edges → shapes → patterns) from thousands of labeled images without being explicitly programmed what to look for</button>
+          <button class="option-btn" onclick="answer('q2a','D',false)"><span class="option-letter">D</span>It can read the radiologist's report text and match it to prior patient records</button>
+        </div>
+        <div class="feedback-box" id="q2a-feedback"></div>
+      </div>
+
+      <div class="question-block" id="q2b-block" style="opacity:0.4;pointer-events:none;">
+        <div class="question-label">
+          QUESTION 4 <span>·</span> CRITICAL THINKING
+          <span class="pts-badge">50 PTS</span>
+        </div>
+        <div class="question-text">The AI says 88% confidence, low concern. But James has a fever of 38.9°C, SpO2 of 93% on 2L, elevated WBC, and elevated CRP. As the DNP, your biggest concern about this AI output is:</div>
+        <div class="options" id="q2b-options">
+          <button class="option-btn" onclick="answer('q2b','A',false)"><span class="option-letter">A</span>The AI was not connected to the internet, so its data was outdated</button>
+          <button class="option-btn" onclick="answer('q2b','B',true)"><span class="option-letter">B</span>The model may have been trained on datasets underrepresenting obese patients — and the clinical picture strongly suggests pneumonia despite the AI result. This is a false negative risk.</button>
+          <button class="option-btn" onclick="answer('q2b','C',false)"><span class="option-letter">C</span>The AI result is from a different vendor than the EHR, so it shouldn't be trusted at all</button>
+          <button class="option-btn" onclick="answer('q2b','D',false)"><span class="option-letter">D</span>The 88% confidence score means there is a 12% chance of any pathology, which is acceptable for discharge</button>
+        </div>
+        <div class="feedback-box" id="q2b-feedback"></div>
+      </div>
+
+      <div class="reflection-block" id="reflect2">
+        <div class="reflection-label">💬 REFLECTION PROMPT</div>
+        <div class="reflection-q">Automation bias — over-relying on algorithmic outputs — is one of the most documented risks of clinical AI. Have you witnessed automation bias in your practice (from AI or any other protocol/decision tool)? What conditions make it most likely to happen?</div>
+        <textarea class="reflection-textarea" id="reflect2-text" placeholder="Type your reflection here..." oninput="updateChar('reflect2-text','char2')"></textarea>
+        <div class="char-count" id="char2">0 characters</div>
+      </div>
+
+      <button class="btn btn-primary btn-next" id="next2" onclick="goToScenario(3)">
+        Next Scenario ➜
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SCREEN: SCENARIO 3 — Ambient AI / NLP
+  ══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-s3">
+    <div class="fade-in">
+      <div class="step-dots">
+        <div class="step-dot done"></div>
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+      </div>
+
+      <div class="scenario-header">
+        <span class="scenario-num" style="background:var(--gold);color:var(--navy);">SCENARIO 3 OF 3</span>
+        <span class="scenario-title-text">The Note the AI Wrote</span>
+      </div>
+
+      <div class="ehr-alert">
+        <div class="ehr-topbar" style="background:#1E293B;">
+          <span style="color:#64748B;">⬛</span><span style="color:#64748B;">⬛</span><span style="color:#64748B;">⬛</span>
+          <span style="color:#8899AA;font-weight:400;letter-spacing:0;">Ambient AI Documentation · Draft Note · Awaiting Signature</span>
+        </div>
+        <div class="ehr-body">
+          <div class="ehr-patient-row">
+            <div class="ehr-field">Patient<strong>Rosa V., 79F</strong></div>
+            <div class="ehr-field">MRN<strong>#884712</strong></div>
+            <div class="ehr-field">Visit Type<strong>Annual Wellness Visit</strong></div>
+            <div class="ehr-field">Provider<strong>You (DNP)</strong></div>
+          </div>
+          <div class="ehr-alert-box" style="background:rgba(240,165,0,0.08);border:1px solid rgba(240,165,0,0.3);">
+            <div class="ehr-alert-icon">🤖</div>
+            <div class="ehr-alert-text">
+              <div class="alert-title" style="color:#FDE68A;">AMBIENT AI — DRAFT NOTE READY FOR REVIEW</div>
+              <div style="color:#FEF3C7;font-size:13px;line-height:1.6;margin-top:6px;">
+                <em>"Patient is a 79-year-old female presenting for annual wellness. She reports occasional chest tightness with exertion, which began approximately 3 months ago. <strong style="color:#FCA5A5;">No cardiac workup completed to date.</strong> Patient denies shortness of breath. Depression screening negative. <strong style="color:#FCA5A5;">She declined flu vaccine today.</strong> Updated medication list reviewed. A1c 6.9%, stable. Plan: continue current management, follow-up in 12 months."</em>
+              </div>
+              <div style="color:#F59E0B;font-size:11px;margin-top:8px;">⚠ Items highlighted in red require clinical review before signing</div>
+            </div>
+          </div>
+          <div class="know-bit" style="background:rgba(224,82,82,0.08);border-radius:8px;padding:12px 14px;margin-top:10px;">
+            <span class="know-bit-icon" style="color:var(--coral);">⚠️</span>
+            <span style="color:#FECACA;">You know from your conversation with Rosa that she actually <strong>did</strong> accept the flu vaccine — you administered it. The AI misheard "I'm ready for my shot" as "I declined." She also mentioned her daughter's name, Maria, several times. The draft doesn't mention it — but you are aware that Rosa speaks with a strong accent.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="question-block" id="q3a-block">
+        <div class="question-label">
+          QUESTION 5 <span>·</span> NLP MECHANICS
+          <span class="pts-badge">50 PTS</span>
+        </div>
+        <div class="question-text">This ambient AI uses Natural Language Processing (NLP) to convert your spoken clinical encounter into a structured note. Which of the following best describes a known limitation of NLP in this clinical context?</div>
+        <div class="options" id="q3a-options">
+          <button class="option-btn" onclick="answer('q3a','A',false)"><span class="option-letter">A</span>NLP cannot process audio — it only works with text typed directly into the system</button>
+          <button class="option-btn" onclick="answer('q3a','B',false)"><span class="option-letter">B</span>NLP works perfectly for clinical encounters but struggles with billing codes</button>
+          <button class="option-btn" onclick="answer('q3a','C',true)"><span class="option-letter">C</span>NLP models can mishear or misinterpret speech — especially with accents, ambient noise, or ambiguous phrasing — and may generate clinically plausible but incorrect documentation</button>
+          <button class="option-btn" onclick="answer('q3a','D',false)"><span class="option-letter">D</span>NLP only works in English, so it cannot be used for any non-English-speaking patients</button>
+        </div>
+        <div class="feedback-box" id="q3a-feedback"></div>
+      </div>
+
+      <div class="question-block" id="q3b-block" style="opacity:0.4;pointer-events:none;">
+        <div class="question-label">
+          QUESTION 6 <span>·</span> PATIENT SAFETY + DNP ROLE
+          <span class="pts-badge">50 PTS</span>
+        </div>
+        <div class="question-text">The AI incorrectly documented that Rosa declined the flu vaccine — which you actually administered. If you sign this note without correcting it, what are the most serious downstream consequences?</div>
+        <div class="options" id="q3b-options">
+          <button class="option-btn" onclick="answer('q3b','A',false)"><span class="option-letter">A</span>None — AI documentation errors are generally harmless and can always be corrected later</button>
+          <button class="option-btn" onclick="answer('q3b','B',false)"><span class="option-letter">B</span>The hospital's AI vendor contract would be violated, triggering a financial penalty</button>
+          <button class="option-btn" onclick="answer('q3b','C',true)"><span class="option-letter">C</span>Future providers may re-administer the vaccine (double dosing), quality metrics will incorrectly flag her as non-vaccinated, and you have signed an inaccurate legal medical record — creating liability exposure and potential patient harm</button>
+          <button class="option-btn" onclick="answer('q3b','D',false)"><span class="option-letter">D</span>The patient's insurance will deny the claim for the visit, but there are no clinical consequences</button>
+        </div>
+        <div class="feedback-box" id="q3b-feedback"></div>
+      </div>
+
+      <div class="reflection-block" id="reflect3">
+        <div class="reflection-label">💬 FINAL REFLECTION</div>
+        <div class="reflection-q">After these three scenarios — the sepsis alert, the radiology AI, and the ambient note — what is the single most important thing a DNP needs to understand about clinical AI? Not a textbook answer. Your real takeaway.</div>
+        <textarea class="reflection-textarea" id="reflect3-text" placeholder="Your real takeaway from today's rounds..." oninput="updateChar('reflect3-text','char3')"></textarea>
+        <div class="char-count" id="char3">0 characters</div>
+      </div>
+
+      <button class="btn btn-gold btn-next" id="next3" onclick="showResults()" style="font-size:15px;">
+        🏁 See My Results
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SCREEN: RESULTS
+  ══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-results">
+    <div class="results-card fade-in">
+      <div class="results-header">
+        <div id="results-emoji" style="font-size:48px;margin-bottom:10px;">🏥</div>
+        <div class="results-title" id="results-title">Rounds Complete</div>
+        <div class="results-sub">AI Rounds · Week 2 · How Clinical AI Works</div>
+        <div class="big-score" id="finalScore">0</div>
+        <div class="big-score-label">OUT OF 300 POINTS</div>
+        <div class="grade-bar"><div class="grade-fill" id="gradeFill" style="width:0%"></div></div>
+        <div id="grade-label" style="font-size:13px;color:#94A3B8;"></div>
+      </div>
+      <div class="results-body">
+        <div class="result-rows" id="resultRows"></div>
+
+        <div class="reflection-summary" id="reflectionSummary"></div>
+
+        <div class="educator-note">
+          <h3>📚 WHAT THIS ACTIVITY COVERED</h3>
+          <p>You practiced three core Week 2 competencies: <strong>identifying ML types in clinical context</strong> (supervised learning, deep learning, NLP), <strong>interpreting AI outputs critically rather than automatically</strong>, and <strong>understanding where human clinical judgment remains non-negotiable</strong>. These scenarios are drawn from real documented clinical AI patterns — the sepsis alert over-sensitivity, imaging AI performance gaps in obese populations, and ambient documentation errors are all in the published literature.</p>
+        </div>
+
+        <!-- Student name for certificate -->
+        <div style="background:rgba(14,154,167,0.08);border:1px solid rgba(14,154,167,0.2);border-radius:12px;padding:18px 20px;margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#0ABFCC;margin-bottom:10px;">📄 GENERATE YOUR COMPLETION CERTIFICATE</div>
+          <p style="font-size:13px;color:#94A3B8;margin-bottom:14px;line-height:1.5;">Enter your name as it should appear on your certificate, then download and submit the PDF to your course dropbox as proof of completion.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <input type="text" id="studentName" placeholder="Your Full Name" maxlength="60"
+              style="flex:1;min-width:200px;background:rgba(0,0,0,0.3);border:1.5px solid rgba(14,154,167,0.35);border-radius:8px;color:#fff;font-size:14px;padding:11px 14px;font-family:inherit;outline:none;"
+              onfocus="this.style.borderColor='#0E9AA7'" onblur="this.style.borderColor='rgba(14,154,167,0.35)'"
+              onkeydown="if(event.key==='Enter')downloadCertificate()">
+            <button class="btn btn-gold" onclick="downloadCertificate()" style="white-space:nowrap;">
+              ⬇ Download Certificate PDF
+            </button>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="btn btn-primary" onclick="restartActivity()">🔄 Retake Rounds</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let score = 0;
+let answered = {};
+let scenarioDone = { s1: false, s2: false, s3: false };
+
+const feedbackData = {
+  q1a: {
+    correct: "B",
+    explanation: {
+      B: `<div class="fb-header">✅ Correct! <span class="points-flash">+50</span></div>Supervised learning means the model was trained on historical data where outcomes were <em>already known and labeled</em> — in this case, thousands of patient records tagged as "developed sepsis" or "did not develop sepsis." The algorithm learned which patterns (vitals, labs, nursing notes) predict those labels. That's the "supervision" — labeled training examples, not human oversight of individual predictions.`,
+      default: `<div class="fb-header">❌ Not quite.</div>Supervised learning means the model trained on <em>labeled data</em> — historical records where the outcome (sepsis or no sepsis) was already known. The algorithm learned to recognize patterns that predicted those known outcomes. No physician is watching individual predictions in real time.`
+    }
+  },
+  q1b: {
+    correct: "C",
+    explanation: {
+      C: `<div class="fb-header">✅ Correct! <span class="points-flash">+50</span></div>This is the core DNP competency: AI <em>informs</em> your clinical judgment — it doesn't replace it. A 74% probability means the model flags this as elevated risk, not a confirmed diagnosis. Margaret's reassuring vitals deserve your eyes at her bedside. The alert is a prompt to assess, not a prescription to act without thinking.`,
+      A: `<div class="fb-header">❌ Automation bias.</div>Ordering the full sepsis bundle without bedside assessment is a classic example of automation bias — over-relying on the algorithm. The AI score is one input. Your clinical assessment is the irreplaceable next step.`,
+      B: `<div class="fb-header">❌ Alert fatigue rationalization.</div>Dismissing the alert because the patient "looks fine" is the other dangerous extreme. AI alerts exist because early sepsis often <em>looks fine</em> — that's the point. Dismissal without assessment is just as dangerous as blind compliance.`,
+      D: `<div class="fb-header">❌ Delayed response.</div>Deferring to nursing monitoring and reassessing in the morning is not appropriate for a high-priority sepsis alert. Go assess the patient now and make a real-time decision.`
+    }
+  },
+  q2a: {
+    correct: "C",
+    explanation: {
+      C: `<div class="fb-header">✅ Correct! <span class="points-flash">+50</span></div>Deep learning's defining feature is <em>hierarchical feature extraction</em> — it doesn't need a radiologist to tell it "look for this specific shape." It learns on its own from tens of thousands of labeled images: first detecting simple edges, then shapes, then complex patterns. This is what makes it powerful for imaging — and also what makes its reasoning opaque. You can't ask it <em>why</em> it flagged something.`,
+      default: `<div class="fb-header">❌ Not quite.</div>Deep learning automatically learns to detect visual features — from simple edges to complex anatomical patterns — entirely from labeled training images. It doesn't need hand-written rules or large amounts of data per se, but it does require many labeled examples to generalize well. Its strength is pattern recognition; its weakness is explainability.`
+    }
+  },
+  q2b: {
+    correct: "B",
+    explanation: {
+      B: `<div class="fb-header">✅ Correct! <span class="points-flash">+50</span></div>You identified the key issue: <em>population mismatch and false negative risk</em>. Chest X-ray AI models are often trained on standard-BMI patients. Obese patients can have atypical radiographic presentations — infiltrates may be harder to detect. Meanwhile, James's clinical picture (fever, elevated WBC, CRP, SpO2 on O2) is strongly suggestive of pneumonia. When the AI and the clinical picture conflict, trust your clinical assessment and push for radiologist review before discharge.`,
+      D: `<div class="fb-header">❌ Careful with confidence scores.</div>88% confidence means the model is 88% confident in its own classification — not that there's only a 12% chance of any pathology. More critically, confidence scores don't account for whether the training population resembled your patient. Don't discharge based on AI confidence when clinical signs are screaming otherwise.`,
+      default: `<div class="fb-header">❌ Not quite.</div>The core issue is <em>false negative risk</em> — the AI may be systematically underperforming on obese patients if they were underrepresented in training data. Combined with a clinical picture that strongly suggests pneumonia, this is a case where your clinical judgment must override the AI output.`
+    }
+  },
+  q3a: {
+    correct: "C",
+    explanation: {
+      C: `<div class="fb-header">✅ Correct! <span class="points-flash">+50</span></div>NLP models are not perfect listeners. Speech recognition errors — especially with accents, rapid speech, ambient noise, or ambiguous phrasing — are documented in the literature. The model "heard" Rosa's "I'm ready for my shot" as a declination. These errors are plausible, contextually coherent, and easy to miss if you sign without reading carefully. NLP generates confident-sounding text even when it's wrong.`,
+      A: `<div class="fb-header">❌ That's not how ambient AI works.</div>Ambient AI uses a microphone to capture audio and then converts speech to text using speech recognition models. It absolutely processes audio — that's the whole point of ambient documentation.`,
+      default: `<div class="fb-header">❌ Not quite.</div>The key limitation here is <em>speech recognition and contextual interpretation errors</em>. NLP models can mishear speech and generate plausible but incorrect text. Accents, ambient noise, and ambiguous phrasing are well-documented sources of error that require clinician review before signing.`
+    }
+  },
+  q3b: {
+    correct: "C",
+    explanation: {
+      C: `<div class="fb-header">✅ Correct! <span class="points-flash">+50</span></div>You identified all three downstream consequences: <strong>(1) Clinical harm</strong> — a future provider may re-administer the vaccine based on the chart. <strong>(2) Quality metric corruption</strong> — Rosa gets flagged as non-compliant, skewing population health data. <strong>(3) Legal liability</strong> — you signed an inaccurate medical record. The ambient AI draft is a starting point, not a finished note. Your signature is your attestation that it's accurate.`,
+      A: `<div class="fb-header">❌ AI errors are not harmless.</div>AI documentation errors can propagate through the medical record indefinitely. Future providers make decisions based on what's in the chart. A wrong vaccination record can lead to duplicate dosing, incorrect quality flags, and misinformed care decisions for years.`,
+      default: `<div class="fb-header">❌ Not quite.</div>An incorrect medical record has three serious consequences: potential duplicate vaccine administration, incorrect quality metric flags, and legal liability from signing an inaccurate note. The DNP's signature is legal attestation of accuracy — always read before signing.`
+    }
+  }
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function updateScore(delta) {
+  score += delta;
+  const el = document.getElementById('scoreDisplay');
+  el.textContent = score;
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+}
+
+function updateChar(textareaId, charId) {
+  const len = document.getElementById(textareaId).value.length;
+  document.getElementById(charId).textContent = len + ' characters';
+}
+
+function setProgress(pct) {
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function answer(questionId, selectedOption, isCorrect) {
+  if (answered[questionId]) return;
+  answered[questionId] = { selected: selectedOption, correct: isCorrect };
+
+  const optionsEl = document.getElementById(questionId + '-options');
+  const correctAnswer = feedbackData[questionId].correct;
+  const buttons = optionsEl.querySelectorAll('.option-btn');
+
+  buttons.forEach(btn => {
+    btn.classList.add('answered');
+    const letter = btn.querySelector('.option-letter').textContent.trim();
+    if (letter === correctAnswer) {
+      btn.classList.add('correct');
+    } else if (letter === selectedOption && !isCorrect) {
+      btn.classList.add('incorrect');
+    }
+  });
+
+  // Feedback
+  const fbEl = document.getElementById(questionId + '-feedback');
+  const fbData = feedbackData[questionId].explanation;
+  const fbText = isCorrect ? fbData[selectedOption] : (fbData[selectedOption] || fbData.default);
+  fbEl.innerHTML = fbText;
+  fbEl.className = 'feedback-box ' + (isCorrect ? 'correct-fb' : 'incorrect-fb') + ' show';
+
+  if (isCorrect) updateScore(50);
+
+  // Unlock next question or reflection
+  checkScenarioProgress(questionId);
+}
+
+function checkScenarioProgress(questionId) {
+  if (questionId === 'q1a') {
+    const q1b = document.getElementById('q1b-block');
+    q1b.style.opacity = '1';
+    q1b.style.pointerEvents = 'auto';
+    q1b.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  if (questionId === 'q1b') {
+    document.getElementById('reflect1').classList.add('show');
+    document.getElementById('next1').classList.add('show');
+    document.getElementById('reflect1').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setProgress(33);
+  }
+  if (questionId === 'q2a') {
+    const q2b = document.getElementById('q2b-block');
+    q2b.style.opacity = '1';
+    q2b.style.pointerEvents = 'auto';
+    q2b.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  if (questionId === 'q2b') {
+    document.getElementById('reflect2').classList.add('show');
+    document.getElementById('next2').classList.add('show');
+    document.getElementById('reflect2').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setProgress(66);
+  }
+  if (questionId === 'q3a') {
+    const q3b = document.getElementById('q3b-block');
+    q3b.style.opacity = '1';
+    q3b.style.pointerEvents = 'auto';
+    q3b.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  if (questionId === 'q3b') {
+    document.getElementById('reflect3').classList.add('show');
+    document.getElementById('next3').classList.add('show');
+    document.getElementById('reflect3').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setProgress(95);
+  }
+}
+
+function startActivity() {
+  showScreen('screen-s1');
+  setProgress(5);
+}
+
+function goToScenario(num) {
+  showScreen('screen-s' + num);
+}
+
+function showResults() {
+  setProgress(100);
+
+  // Build result rows
+  const questions = [
+    { label: "Q1 — Supervised Learning (Scenario 1)", id: "q1a" },
+    { label: "Q2 — Clinical Judgment / Sepsis Alert", id: "q1b" },
+    { label: "Q3 — Deep Learning / Imaging AI", id: "q2a" },
+    { label: "Q4 — False Negative Risk / Automation Bias", id: "q2b" },
+    { label: "Q5 — NLP Limitations", id: "q3a" },
+    { label: "Q6 — Documentation Safety", id: "q3b" },
+  ];
+
+  let rowsHtml = '';
+  questions.forEach(q => {
+    const ans = answered[q.id];
+    const got = ans && ans.correct;
+    rowsHtml += `
+      <div class="result-row">
+        <div class="result-icon">${got ? '✅' : '❌'}</div>
+        <div class="result-label">${q.label}</div>
+        <div class="result-pts">${got ? '+50' : '0'}</div>
+      </div>`;
+  });
+  document.getElementById('resultRows').innerHTML = rowsHtml;
+
+  // Build reflection summary
+  const r1 = document.getElementById('reflect1-text').value.trim();
+  const r2 = document.getElementById('reflect2-text').value.trim();
+  const r3 = document.getElementById('reflect3-text').value.trim();
+
+  let reflHtml = '<h3>💬 YOUR REFLECTIONS</h3>';
+  const reflLabels = [
+    "Scenario 1 — Clinical Alerts & Judgment",
+    "Scenario 2 — Automation Bias",
+    "Final Reflection — Your Key Takeaway",
+  ];
+  [r1, r2, r3].forEach((r, i) => {
+    if (r) {
+      reflHtml += `<div class="saved-reflection-label">${reflLabels[i]}</div><div class="saved-reflection">${r}</div>`;
+    } else {
+      reflHtml += `<div class="saved-reflection-label">${reflLabels[i]}</div><div class="saved-reflection" style="color:#6B7280;font-style:normal;">(No reflection entered)</div>`;
+    }
+  });
+  document.getElementById('reflectionSummary').innerHTML = reflHtml;
+
+  // Final score display
+  const pct = Math.round((score / 300) * 100);
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('gradeFill').style.width = pct + '%';
+
+  let emoji = '💪', title = 'Solid Rounds', gradeNote = '';
+  if (score === 300) {
+    emoji = '🏆'; title = 'Perfect Rounds!';
+    gradeNote = 'You nailed all six questions. Your clinical AI judgment is sharp.';
+  } else if (score >= 250) {
+    emoji = '⭐'; title = 'Strong Rounds';
+    gradeNote = 'You got most of it right. Review the ones you missed — they tend to come up in practice.';
+  } else if (score >= 150) {
+    emoji = '💪'; title = 'Good Start';
+    gradeNote = 'You have the foundations. Consider retaking to reinforce the concepts you missed.';
+  } else {
+    emoji = '📚'; title = 'Keep Learning';
+    gradeNote = 'These are tricky — that\'s the point. Retake the activity and check the feedback on each question carefully.';
+  }
+
+  document.getElementById('results-emoji').textContent = emoji;
+  document.getElementById('results-title').textContent = title;
+  document.getElementById('grade-label').textContent = `${pct}% · ${gradeNote}`;
+
+  showScreen('screen-results');
+}
+
+function restartActivity() {
+  score = 0;
+  answered = {};
+  document.getElementById('scoreDisplay').textContent = '0';
+  setProgress(0);
+
+  // Reset all questions
+  ['q1a','q1b','q2a','q2b','q3a','q3b'].forEach(qid => {
+    const optionsEl = document.getElementById(qid + '-options');
+    if (optionsEl) {
+      optionsEl.querySelectorAll('.option-btn').forEach(btn => {
+        btn.className = 'option-btn';
+      });
+    }
+    const fbEl = document.getElementById(qid + '-feedback');
+    if (fbEl) { fbEl.className = 'feedback-box'; fbEl.innerHTML = ''; }
+  });
+
+  // Lock second questions
+  ['q1b-block','q2b-block','q3b-block'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.opacity = '0.4'; el.style.pointerEvents = 'none'; }
+  });
+
+  // Hide reflections & next buttons
+  ['reflect1','reflect2','reflect3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  });
+  ['next1','next2','next3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  });
+
+  // Clear textareas
+  ['reflect1-text','reflect2-text','reflect3-text'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['char1','char2','char3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '0 characters';
+  });
+
+  showScreen('screen-intro');
+}
+
+// ── Certificate PDF generator ─────────────────────────────────────────────────
+function downloadCertificate() {
+  const name = (document.getElementById('studentName').value || '').trim();
+  if (!name) {
+    const inp = document.getElementById('studentName');
+    inp.style.borderColor = '#E05252';
+    inp.placeholder = 'Please enter your name first';
+    inp.focus();
+    setTimeout(() => {
+      inp.style.borderColor = 'rgba(14,154,167,0.35)';
+      inp.placeholder = 'Your Full Name';
+    }, 2500);
+    return;
+  }
+
+  const pct = Math.round((score / 300) * 100);
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+
+  const questions = [
+    { label: 'Q1 — Supervised Learning', id: 'q1a' },
+    { label: 'Q2 — Clinical Judgment: Sepsis Alert', id: 'q1b' },
+    { label: 'Q3 — Deep Learning & Imaging AI', id: 'q2a' },
+    { label: 'Q4 — False Negative & Automation Bias', id: 'q2b' },
+    { label: 'Q5 — NLP Limitations', id: 'q3a' },
+    { label: 'Q6 — Documentation Safety', id: 'q3b' },
+  ];
+
+  const r1 = (document.getElementById('reflect1-text').value || '').trim() || '(not entered)';
+  const r2 = (document.getElementById('reflect2-text').value || '').trim() || '(not entered)';
+  const r3 = (document.getElementById('reflect3-text').value || '').trim() || '(not entered)';
+
+  let qRows = '';
+  questions.forEach(q => {
+    const a = answered[q.id];
+    const got = a && a.correct;
+    qRows += `
+      <tr>
+        <td style="padding:7px 10px;border-bottom:1px solid #E2E8F0;font-size:12px;color:#374151;">${q.label}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #E2E8F0;text-align:center;font-size:13px;">${got ? '✅' : '❌'}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #E2E8F0;text-align:center;font-size:12px;font-weight:700;color:${got ? '#15803D' : '#DC2626'};">${got ? '50' : '0'}</td>
+      </tr>`;
+  });
+
+  const gradeColor = pct >= 83 ? '#15803D' : pct >= 50 ? '#B45309' : '#DC2626';
+  const gradeWord  = pct >= 83 ? 'Proficient' : pct >= 50 ? 'Developing' : 'Needs Review';
+
+  const certHtml = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Rounds Certificate — ${name}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; color: #111; }
+  @page { size: A4; margin: 0; }
+
+  /* ── Certificate page ── */
+  .cert-page {
+    width: 210mm; min-height: 297mm;
+    padding: 0;
+    page-break-after: always;
+  }
+  .cert-header {
+    background: #0D2137;
+    padding: 36px 48px 28px;
+    text-align: center;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .cert-program {
+    font-size: 10px; letter-spacing: 2px; font-weight: 700;
+    color: #0ABFCC; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .cert-activity {
+    font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px;
+  }
+  .cert-course {
+    font-size: 13px; color: #8899AA; margin-bottom: 20px;
+  }
+  .cert-seal {
+    display: inline-flex; flex-direction: column; align-items: center;
+    background: rgba(14,154,167,0.15); border: 2px solid #0E9AA7;
+    border-radius: 50%; width: 100px; height: 100px;
+    justify-content: center; margin-bottom: 8px;
+  }
+  .cert-seal-icon { font-size: 38px; }
+  .cert-seal-label { font-size: 8px; letter-spacing: 1.5px; color: #0ABFCC; font-weight: 700; margin-top: 2px; }
+
+  .cert-body { padding: 28px 48px; }
+
+  .cert-award-line {
+    text-align: center;
+    font-size: 12px; color: #6B7280; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 8px; margin-top: 4px;
+  }
+  .cert-name {
+    text-align: center;
+    font-size: 32px; font-weight: 800; color: #0D2137;
+    border-bottom: 3px solid #0E9AA7;
+    padding-bottom: 10px; margin-bottom: 6px;
+  }
+  .cert-date-line {
+    text-align: center; font-size: 12px; color: #6B7280; margin-bottom: 24px;
+  }
+
+  .cert-score-row {
+    display: flex; gap: 0; border: 1px solid #E2E8F0;
+    border-radius: 10px; overflow: hidden; margin-bottom: 22px;
+  }
+  .cert-score-cell {
+    flex: 1; padding: 14px 10px; text-align: center;
+    border-right: 1px solid #E2E8F0;
+  }
+  .cert-score-cell:last-child { border-right: none; }
+  .cert-score-val { font-size: 28px; font-weight: 900; }
+  .cert-score-lbl { font-size: 9px; letter-spacing: 1px; color: #9CA3AF; text-transform: uppercase; margin-top: 3px; }
+
+  .section-head {
+    font-size: 9px; letter-spacing: 1.5px; font-weight: 700;
+    color: #0E9AA7; text-transform: uppercase;
+    margin-bottom: 8px; margin-top: 18px;
+    padding-bottom: 4px; border-bottom: 1px solid #E2E8F0;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  .tbl-head td {
+    background: #0D2137; color: #fff; font-size: 10px; font-weight: 700;
+    padding: 8px 10px; letter-spacing: 0.5px;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+
+  .reflect-block {
+    background: #F9FAFB; border: 1px solid #E2E8F0;
+    border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+  }
+  .reflect-label { font-size: 9px; font-weight: 700; color: #7D3C98; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+  .reflect-text { font-size: 11px; color: #374151; line-height: 1.6; font-style: italic; }
+
+  .cert-footer {
+    margin-top: 22px;
+    border-top: 1px solid #E2E8F0; padding-top: 14px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .sig-block { font-size: 10px; color: #9CA3AF; line-height: 1.7; }
+  .sig-line { border-top: 1px solid #D1D5DB; width: 180px; margin-top: 28px; padding-top: 5px; }
+  .cert-meta { font-size: 9px; color: #D1D5DB; text-align: right; line-height: 1.7; }
+
+  .badge-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; justify-content:center; }
+  .badge-chip {
+    background: #EFF6FF; border: 1px solid #BFDBFE;
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 11px; color: #1D4ED8; font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div class="cert-page">
+  <div class="cert-header">
+    <div class="cert-program">DNP Program · Artificial Intelligence in Advanced Nursing Practice</div>
+    <div class="cert-activity">🏥 AI Rounds</div>
+    <div class="cert-course">Week 2: How Clinical AI Works · Leadership, Ethics, and Evidence</div>
+    <div class="cert-seal">
+      <div class="cert-seal-icon">🎓</div>
+      <div class="cert-seal-label">COMPLETED</div>
+    </div>
+  </div>
+
+  <div class="cert-body">
+    <div class="cert-award-line">This certifies that</div>
+    <div class="cert-name">${escapeHtml(name)}</div>
+    <div class="cert-date-line">successfully completed the AI Rounds interactive activity on ${dateStr} at ${timeStr}</div>
+
+    <div class="cert-score-row">
+      <div class="cert-score-cell">
+        <div class="cert-score-val" style="color:#0D2137;">${score}</div>
+        <div class="cert-score-lbl">Score</div>
+      </div>
+      <div class="cert-score-cell">
+        <div class="cert-score-val" style="color:#0D2137;">300</div>
+        <div class="cert-score-lbl">Possible</div>
+      </div>
+      <div class="cert-score-cell">
+        <div class="cert-score-val" style="color:#0D2137;">${pct}%</div>
+        <div class="cert-score-lbl">Percent</div>
+      </div>
+      <div class="cert-score-cell">
+        <div class="cert-score-val" style="color:${gradeColor};font-size:18px;">${gradeWord}</div>
+        <div class="cert-score-lbl">Performance</div>
+      </div>
+    </div>
+
+    <div class="badge-row">
+      <div class="badge-chip">✅ Scenario 1: Sepsis Alert &amp; Supervised ML</div>
+      <div class="badge-chip">✅ Scenario 2: Radiology AI &amp; Deep Learning</div>
+      <div class="badge-chip">✅ Scenario 3: Ambient AI &amp; NLP Documentation</div>
+    </div>
+
+    <div class="section-head">Question-by-Question Results</div>
+    <table>
+      <tr class="tbl-head">
+        <td>Question</td>
+        <td style="width:80px;text-align:center;">Result</td>
+        <td style="width:60px;text-align:center;">Points</td>
+      </tr>
+      ${qRows}
+      <tr>
+        <td style="padding:8px 10px;font-size:12px;font-weight:700;color:#0D2137;background:#F0F4F8;">TOTAL</td>
+        <td style="text-align:center;background:#F0F4F8;"></td>
+        <td style="padding:8px 10px;text-align:center;font-size:14px;font-weight:900;color:#0D2137;background:#F0F4F8;">${score} / 300</td>
+      </tr>
+    </table>
+
+    <div class="section-head" style="margin-top:20px;">Student Reflections</div>
+
+    <div class="reflect-block">
+      <div class="reflect-label">Scenario 1 — Clinical Alerts &amp; Judgment</div>
+      <div class="reflect-text">${escapeHtml(r1)}</div>
+    </div>
+    <div class="reflect-block">
+      <div class="reflect-label">Scenario 2 — Automation Bias</div>
+      <div class="reflect-text">${escapeHtml(r2)}</div>
+    </div>
+    <div class="reflect-block">
+      <div class="reflect-label">Final Reflection — Key Takeaway</div>
+      <div class="reflect-text">${escapeHtml(r3)}</div>
+    </div>
+
+    <div class="cert-footer">
+      <div class="sig-block">
+        <div class="sig-line">Instructor Signature &amp; Date</div>
+      </div>
+      <div class="cert-meta">
+        AI Rounds Activity · Week 2<br>
+        How Clinical AI Works<br>
+        Completed: ${dateStr}<br>
+        SLO 1 · SLO 2 · SLO 3 | AACN 1, 4, 5, 9
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>`;
+
+  // Open in new window and trigger print-to-PDF
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(certHtml);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 600);
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+</script>
+</body>
+</html>

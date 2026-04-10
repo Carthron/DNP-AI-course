@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clearance or No Clearance? — Week 4 Activity</title>
+<style>
+  :root {
+    --navy:    #0F1E33;
+    --navy2:   #1A2E48;
+    --navy3:   #243C5C;
+    --gold:    #C8900A;
+    --gold2:   #E0A820;
+    --teal:    #0E7A8A;
+    --teal2:   #12A0B4;
+    --green:   #1A7A3A;
+    --green2:  #22A04C;
+    --red:     #C02020;
+    --red2:    #E03030;
+    --purple:  #5A2A7A;
+    --amber:   #B86010;
+    --cream:   #F5F8FC;
+    --white:   #FFFFFF;
+    --border:  #CBD5E1;
+    --dktext:  #0F1E33;
+    --mdtext:  #374151;
+    --lttext:  #6B7280;
+    --lgray:   #E8EDF4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--cream); color: var(--dktext); min-height: 100vh; }
+
+  /* ── Topbar ────────────────────────────────────────────── */
+  .topbar { background: var(--navy); border-bottom: 3px solid var(--gold2); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .topbar-left { display: flex; flex-direction: column; gap: 2px; }
+  .tb-badge { background: var(--gold); color: #fff; font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 3px; letter-spacing: 1px; display: inline-block; margin-bottom: 3px; }
+  .tb-title { font-size: 15px; font-weight: 700; color: #fff; }
+  .tb-sub { font-size: 10px; color: #8899AA; letter-spacing: 0.5px; }
+  .score-pill { background: rgba(255,255,255,0.06); border: 1.5px solid var(--gold2); border-radius: 20px; padding: 5px 16px; display: flex; align-items: center; gap: 8px; }
+  .score-lbl { font-size: 9px; color: var(--gold2); letter-spacing: 1.5px; font-weight: 700; }
+  .score-num { font-size: 22px; font-weight: 900; color: var(--gold2); min-width: 36px; text-align: right; }
+  .progress-wrap { width: 100%; height: 4px; background: rgba(0,0,0,0.1); }
+  .progress-fill { height: 4px; background: linear-gradient(90deg, var(--navy3), var(--gold2)); transition: width 0.5s ease; }
+
+  /* ── Layout ───────────────────────────────────────────── */
+  .main { max-width: 860px; margin: 0 auto; padding: 28px 20px 60px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── Intro ────────────────────────────────────────────── */
+  .intro-card { background: var(--navy); border-radius: 16px; padding: 36px 40px; position: relative; overflow: hidden; margin-bottom: 18px; }
+  .intro-card::before { content: ''; position: absolute; top: -50px; right: -50px; width: 220px; height: 220px; background: var(--gold); border-radius: 50%; opacity: 0.07; }
+  .intro-tag { font-size: 10px; letter-spacing: 2px; font-weight: 700; color: var(--gold2); margin-bottom: 10px; }
+  .intro-title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 8px; line-height: 1.2; }
+  .intro-sub { font-size: 14px; color: #A8B8C8; font-style: italic; margin-bottom: 20px; }
+  .intro-brief { font-size: 13px; color: #B8C8D8; line-height: 1.7; border-left: 3px solid var(--gold2); padding-left: 16px; margin-bottom: 24px; }
+  .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+  .stat-chip { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 16px; font-size: 12px; color: #A8B8C8; display: flex; align-items: center; gap: 6px; }
+  .tier-preview { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tier-chip { flex: 1; min-width: 150px; border-radius: 8px; padding: 12px 14px; text-align: center; }
+  .tier-chip .tc-label { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+  .tier-chip .tc-desc { font-size: 10px; opacity: 0.8; }
+
+  /* ── Game card ────────────────────────────────────────── */
+  .game-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 0; }
+  .card-top { background: var(--navy2); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .card-num { font-size: 11px; font-weight: 700; color: #8899AA; letter-spacing: 1px; }
+  .card-pts-badge { background: var(--gold); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 10px; }
+  .tool-body { padding: 24px 28px; }
+  .tool-category { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--teal2); margin-bottom: 8px; display: inline-flex; align-items: center; gap: 6px; }
+  .tool-name { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 10px; line-height: 1.3; }
+  .tool-desc { font-size: 14px; color: var(--mdtext); line-height: 1.7; margin-bottom: 16px; }
+  .detail-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .detail-chip { background: var(--lgray); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 11px; color: var(--mdtext); display: flex; align-items: center; gap: 5px; }
+  .detail-chip strong { color: var(--navy); }
+
+  /* ── Classification buttons ──────────────────────────── */
+  .classify-label { font-size: 12px; font-weight: 700; color: var(--mdtext); margin-bottom: 12px; letter-spacing: 0.3px; }
+  .classify-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .cls-btn {
+    flex: 1; min-width: 140px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--white);
+    color: var(--mdtext);
+    line-height: 1.4;
+  }
+  .cls-btn .cls-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+  .cls-btn .cls-lbl { display: block; font-size: 11px; font-weight: 700; margin-bottom: 3px; }
+  .cls-btn .cls-sub { display: block; font-size: 10px; font-weight: 400; color: var(--lttext); }
+  .cls-btn:not(.answered):hover { transform: translateY(-2px); }
+  .cls-btn.tier1:not(.answered):hover { border-color: var(--green); background: #F0FFF4; color: var(--green); }
+  .cls-btn.tier2:not(.answered):hover { border-color: var(--gold); background: #FFFBF0; color: var(--amber); }
+  .cls-btn.tier3:not(.answered):hover { border-color: var(--red); background: #FFF4F0; color: var(--red); }
+  .cls-btn.correct-ans { border-color: var(--green2); background: #F0FFF4; color: var(--green); }
+  .cls-btn.wrong-ans { border-color: var(--red2); background: #FFF0EE; color: var(--red); opacity: 0.85; }
+  .cls-btn.show-correct { border-color: var(--green2); background: #F0FFF4; color: var(--green); opacity: 0.6; }
+  .cls-btn.answered { cursor: default; pointer-events: none; }
+
+  /* ── Feedback ─────────────────────────────────────────── */
+  .feedback-panel { border-radius: 10px; padding: 18px 20px; margin-top: 16px; display: none; font-size: 13px; line-height: 1.65; }
+  .feedback-panel.correct-fb { background: #F0FFF4; border-left: 4px solid var(--green2); color: #14532D; }
+  .feedback-panel.wrong-fb { background: #FFF4F0; border-left: 4px solid var(--red2); color: #5A0A0A; }
+  .feedback-panel.show { display: block; }
+  .fb-head { font-weight: 700; font-size: 13.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .pts-flash { background: var(--gold2); color: var(--navy); font-size: 10px; font-weight: 800; padding: 2px 9px; border-radius: 10px; }
+  .fb-rationale { font-size: 12.5px; line-height: 1.65; }
+  .fb-dnp { background: rgba(14,122,138,0.08); border-radius: 6px; padding: 10px 14px; margin-top: 10px; font-size: 12px; color: var(--teal); border-left: 3px solid var(--teal2); }
+  .fb-dnp strong { color: var(--teal); }
+
+  /* ── Progress & navigation ──────────────────────────────*/
+  .card-nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid var(--lgray); background: #FAFBFC; }
+  .nav-progress { font-size: 11px; color: var(--lttext); }
+  .btn-next-card { background: var(--navy); color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.18s; display: none; }
+  .btn-next-card:hover { background: var(--navy2); transform: translateY(-1px); }
+  .btn-next-card.show { display: block; }
+
+  /* ── Mini score tracker ──────────────────────────────── */
+  .mini-scoreboard { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 18px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .ms-label { font-size: 11px; color: var(--lttext); font-weight: 600; }
+  .ms-dots { display: flex; gap: 5px; flex: 1; flex-wrap: wrap; }
+  .ms-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); background: var(--lgray); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--lttext); transition: all 0.3s; }
+  .ms-dot.correct { background: var(--green2); border-color: var(--green2); color: #fff; }
+  .ms-dot.wrong { background: var(--red2); border-color: var(--red2); color: #fff; }
+
+  /* ── Results ──────────────────────────────────────────── */
+  .results-hero { background: var(--navy); border-radius: 14px; padding: 32px 36px; text-align: center; margin-bottom: 20px; }
+  .rh-emoji { font-size: 52px; margin-bottom: 10px; }
+  .rh-title { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+  .rh-sub { font-size: 12px; color: #8899AA; margin-bottom: 20px; }
+  .rh-score { font-size: 72px; font-weight: 900; color: var(--gold2); line-height: 1; }
+  .rh-of { font-size: 12px; color: #8899AA; letter-spacing: 1px; margin-bottom: 8px; }
+  .grade-bar { background: rgba(255,255,255,0.1); border-radius: 6px; height: 8px; margin: 12px 0 6px; }
+  .grade-fill { height: 8px; border-radius: 6px; background: linear-gradient(90deg, var(--navy3), var(--gold2)); transition: width 1.2s ease; }
+  .rh-note { font-size: 12px; color: #94A3B8; }
+
+  .result-detail { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
+  .rd-header { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--gold); text-transform: uppercase; margin-bottom: 14px; }
+  .rd-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--lgray); }
+  .rd-row:last-child { border-bottom: none; }
+  .rd-icon { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+  .rd-tool { font-size: 12.5px; color: var(--mdtext); flex: 1; }
+  .rd-tier { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+  .tier-t1 { background: #F0FFF4; color: var(--green); border: 1px solid #B8E8C8; }
+  .tier-t2 { background: #FFFBF0; color: var(--amber); border: 1px solid #E8D8A0; }
+  .tier-t3 { background: #FFF4F0; color: var(--red); border: 1px solid #F0B8A8; }
+  .rd-pts { font-size: 13px; font-weight: 700; color: var(--gold); min-width: 40px; text-align: right; }
+
+  .key-takeaways { background: #F5F8FC; border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
+  .kt-header { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--teal); text-transform: uppercase; margin-bottom: 14px; }
+  .kt-row { display: flex; gap: 10px; margin-bottom: 10px; font-size: 13px; color: var(--mdtext); line-height: 1.6; }
+  .kt-num { background: var(--teal2); color: #fff; font-size: 11px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+  .cert-block { background: #F0F8F5; border: 1px solid #B8D8C8; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .cert-block h3 { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--green); text-transform: uppercase; margin-bottom: 8px; }
+  .cert-block p { font-size: 12.5px; color: var(--mdtext); margin-bottom: 14px; line-height: 1.55; }
+  .cert-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .name-in { flex: 1; min-width: 200px; background: #fff; border: 1.5px solid #B8D8C8; border-radius: 8px; color: var(--dktext); font-size: 14px; padding: 11px 14px; font-family: inherit; outline: none; transition: border-color 0.2s; }
+  .name-in:focus { border-color: var(--green); }
+  .btn { border: none; border-radius: 10px; padding: 12px 24px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.18s; display: inline-flex; align-items: center; gap: 7px; font-family: inherit; }
+  .btn-navy { background: var(--navy); color: #fff; }
+  .btn-navy:hover { background: var(--navy2); }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { background: var(--green2); }
+  .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .fade-in { animation: fadeUp 0.35s ease; }
+  @keyframes bump { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+  .bump { animation: bump 0.3s ease; }
+  @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+  .slide-in { animation: slideIn 0.35s ease; }
+
+  @media(max-width:600px){
+    .classify-row { flex-direction: column; }
+    .cls-btn { min-width: auto; }
+    .action-row,.cert-row { flex-direction: column; }
+    .btn { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="tb-badge">WEEK 4</span>
+    <span class="tb-title">Clearance or No Clearance?</span>
+    <span class="tb-sub">Regulatory, Legal & Policy Landscape</span>
+  </div>
+  <div class="score-pill">
+    <span class="score-lbl">SCORE</span>
+    <span class="score-num" id="scoreDisplay">0</span>
+  </div>
+</div>
+<div class="progress-wrap"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+
+<div class="main">
+
+<!-- ═══════════════ INTRO ═══════════════════════════ -->
+<div class="screen active" id="screen-intro">
+<div class="intro-card fade-in">
+  <div class="intro-tag">DNP PROGRAM · WEEK 4 ACTIVITY</div>
+  <div class="intro-title">Clearance or No Clearance?</div>
+  <div class="intro-sub">Ten clinical AI tools. You classify each one. Immediate feedback tells you exactly why.</div>
+  <div class="intro-brief">
+    As a DNP leader, you will encounter AI tools with confident-sounding regulatory claims — "FDA cleared," "evidence-based," "clinically validated." Your job is to know what those phrases actually mean, and when they don't apply at all. This fast-paced activity puts 10 real-world AI tool types in front of you and asks you to classify each using the FDA's SaMD framework. No guessing — reasoning required.
+  </div>
+  <div class="stat-row">
+    <div class="stat-chip">⚡ 15–20 min</div>
+    <div class="stat-chip">🏷 10 tools</div>
+    <div class="stat-chip">⭐ 25 pts each</div>
+    <div class="stat-chip">💡 Instant feedback</div>
+  </div>
+  <div class="tier-preview">
+    <div class="tier-chip" style="background:rgba(26,122,58,0.12);border:1px solid rgba(34,160,76,0.3);">
+      <div class="tc-label" style="color:var(--green2);">🟢 Tier 1</div>
+      <div class="tc-desc" style="color:var(--green);">Non-Device Software</div>
+      <div class="tc-desc" style="color:#4A8A5A;font-size:9px;margin-top:3px;">Not regulated by FDA</div>
+    </div>
+    <div class="tier-chip" style="background:rgba(200,144,10,0.1);border:1px solid rgba(224,168,32,0.3);">
+      <div class="tc-label" style="color:var(--gold2);">🟡 Tier 2</div>
+      <div class="tc-desc" style="color:var(--amber);">CDSS — Exempt</div>
+      <div class="tc-desc" style="color:#8A6010;font-size:9px;margin-top:3px;">Clinical Decision Support, exempt</div>
+    </div>
+    <div class="tier-chip" style="background:rgba(192,32,32,0.1);border:1px solid rgba(224,48,48,0.3);">
+      <div class="tc-label" style="color:var(--red2);">🔴 Tier 3</div>
+      <div class="tc-desc" style="color:var(--red);">SaMD — FDA Required</div>
+      <div class="tc-desc" style="color:#8A2020;font-size:9px;margin-top:3px;">Subject to 510(k) / De Novo / PMA</div>
+    </div>
+  </div>
+  <button class="btn btn-navy" onclick="startGame()" style="width:100%;justify-content:center;font-size:15px;padding:15px;">
+    Start the Challenge →
+  </button>
+</div>
+</div>
+
+<!-- ═══════════════ GAME ═══════════════════════════ -->
+<div class="screen" id="screen-game">
+<div class="mini-scoreboard">
+  <span class="ms-label">Progress:</span>
+  <div class="ms-dots" id="msDots"></div>
+  <span style="font-size:11px;color:var(--lttext);font-weight:600;" id="msText">0 / 10</span>
+</div>
+
+<div class="game-card slide-in" id="gameCard">
+  <div class="card-top">
+    <span class="card-num" id="cardNum">TOOL 1 OF 10</span>
+    <span class="card-pts-badge">25 PTS</span>
+  </div>
+  <div class="tool-body">
+    <div class="tool-category" id="toolCat"></div>
+    <div class="tool-name" id="toolName"></div>
+    <div class="tool-desc" id="toolDesc"></div>
+    <div class="detail-row" id="detailRow"></div>
+    <div class="classify-label">How should this tool be classified under FDA's framework?</div>
+    <div class="classify-row">
+      <button class="cls-btn tier1" id="btn1" onclick="classify(1)">
+        <span class="cls-icon">🟢</span>
+        <span class="cls-lbl">Tier 1</span>
+        <span class="cls-sub">Non-Device Software</span>
+      </button>
+      <button class="cls-btn tier2" id="btn2" onclick="classify(2)">
+        <span class="cls-icon">🟡</span>
+        <span class="cls-lbl">Tier 2</span>
+        <span class="cls-sub">CDSS — Exempt</span>
+      </button>
+      <button class="cls-btn tier3" id="btn3" onclick="classify(3)">
+        <span class="cls-icon">🔴</span>
+        <span class="cls-lbl">Tier 3</span>
+        <span class="cls-sub">SaMD — FDA Required</span>
+      </button>
+    </div>
+    <div class="feedback-panel" id="feedbackPanel"></div>
+  </div>
+  <div class="card-nav">
+    <span class="nav-progress" id="navProgress">Answer to continue</span>
+    <button class="btn-next-card" id="btnNextCard" onclick="nextCard()">Next Tool →</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ RESULTS ════════════════════════ -->
+<div class="screen" id="screen-results">
+<div class="fade-in">
+  <div class="results-hero">
+    <div class="rh-emoji" id="rh-emoji">⚖️</div>
+    <div class="rh-title" id="rh-title">Classification Complete</div>
+    <div class="rh-sub">Clearance or No Clearance? · Week 4 · Regulatory & Policy</div>
+    <div class="rh-score" id="rh-score">0</div>
+    <div class="rh-of">OUT OF 250 POINTS</div>
+    <div class="grade-bar"><div class="grade-fill" id="rh-bar" style="width:0%"></div></div>
+    <div class="rh-note" id="rh-note"></div>
+  </div>
+
+  <div class="result-detail">
+    <div class="rd-header">📋 Your Classifications</div>
+    <div id="resultRows"></div>
+  </div>
+
+  <div class="key-takeaways">
+    <div class="kt-header">🎯 Key Regulatory Principles This Activity Covered</div>
+    <div class="kt-row"><div class="kt-num">1</div><div>Non-device software (general wellness, scheduling, admin tools) is not regulated by FDA — but "not regulated" does not mean "safe." Institutional governance still applies.</div></div>
+    <div class="kt-row"><div class="kt-num">2</div><div>CDSS is exempt <em>only</em> when the clinician can independently review the basis for the recommendation without relying on the software to do so. Display of data ≠ clinical recommendation.</div></div>
+    <div class="kt-row"><div class="kt-num">3</div><div>The critical SaMD trigger: does the software analyze medical images, process physiological signals, or drive clinical management of a serious condition? If yes — FDA oversight applies.</div></div>
+    <div class="kt-row"><div class="kt-num">4</div><div>"FDA cleared" via 510(k) means substantial equivalence to a predicate device — not demonstrated clinical superiority, safety across all populations, or equity performance.</div></div>
+    <div class="kt-row"><div class="kt-num">5</div><div>Exempt tools still carry liability. If a CDSS-exempt tool contributes to patient harm, the institution and clinician may bear liability even without FDA oversight involvement.</div></div>
+  </div>
+
+  <div class="cert-block">
+    <h3>📄 Download Your Completion Certificate</h3>
+    <p>Enter your name and download your certificate PDF to submit to the Week 4 dropbox.</p>
+    <div class="cert-row">
+      <input type="text" id="studentName" class="name-in" placeholder="Your Full Name" maxlength="60" onkeydown="if(event.key==='Enter')downloadCert()">
+      <button class="btn btn-green" onclick="downloadCert()">⬇ Download Certificate</button>
+    </div>
+  </div>
+  <div class="action-row">
+    <button class="btn btn-navy" onclick="restart()">🔄 Retake Challenge</button>
+  </div>
+</div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ── Tool data ──────────────────────────────────────────────────────────────
+const TOOLS = [
+  {
+    id: 1,
+    cat: "🏥 CLINICAL SETTING",
+    name: "AI Sepsis Prediction & Early Warning System",
+    desc: "An ML algorithm integrated into the EHR that continuously monitors patient vitals, labs, nursing notes, and physiological signals. It generates a real-time sepsis risk probability score (0–100) and fires an alert when the score exceeds a configurable threshold, recommending clinical evaluation.",
+    details: ["Analyzes physiological signals", "Drives clinical management decisions", "Intended for serious/critical conditions", "Integrated into clinical workflow"],
+    correct: 3,
+    rationale: "This is SaMD requiring FDA oversight. It meets multiple SaMD triggers: it processes physiological signals, generates a diagnostic/risk output, and is intended to drive clinical management of a serious (potentially life-threatening) condition. Tools like the Epic Deterioration Index and Cerner Advance Alert Monitor operate in this category. Most are cleared via 510(k).",
+    dnp: "Ask your vendor: Under what clearance pathway was this tool reviewed? What is the predicate device? Has it been updated under a Predetermined Change Control Plan since original clearance?"
+  },
+  {
+    id: 2,
+    cat: "📋 ADMINISTRATIVE",
+    name: "AI-Powered Staff Scheduling & Shift Optimizer",
+    desc: "A machine learning platform that analyzes historical staffing patterns, predicted patient census, skill mix requirements, and nurse preferences to generate optimized shift schedules. It does not make any clinical recommendations about individual patients.",
+    details: ["No patient-specific clinical output", "Administrative/operational function", "No physiological signal processing", "No diagnostic or treatment role"],
+    correct: 1,
+    rationale: "This is non-device software — not regulated by FDA. It performs an operational, administrative function with no patient-specific clinical output and no role in diagnosis or treatment decisions. Scheduling optimization tools do not meet the SaMD or CDSS definitions.",
+    dnp: "However: 'not regulated by FDA' is not the same as 'no governance needed.' Staffing AI that systematically assigns fewer nurses to units with higher-acuity patients still carries patient safety risk. Institutional oversight is still required."
+  },
+  {
+    id: 3,
+    cat: "🫁 RADIOLOGY / IMAGING",
+    name: "AI Chest X-Ray Analysis — Pneumonia & Nodule Detection",
+    desc: "A deep learning model trained on hundreds of thousands of labeled chest radiographs. It analyzes each X-ray and generates a flagged report identifying suspected pneumonia, pulmonary nodules, or other abnormalities — prior to radiologist review.",
+    details: ["Analyzes medical images (radiology)", "Generates diagnostic findings", "Intended to inform clinical management", "Runs before radiologist read"],
+    correct: 3,
+    rationale: "Definitely SaMD — FDA clearance required. AI tools that analyze medical images (radiology, pathology, dermatology) are one of the clearest SaMD categories. This tool processes radiographic images to generate diagnostic findings that directly influence clinical management. Most imaging AI tools are cleared via 510(k), though the clearance often uses predicate devices from before modern deep learning existed.",
+    dnp: "The predicate problem is significant here: your chest X-ray AI may have been cleared as 'substantially equivalent' to a legacy rule-based tool from 2010 — meaning the evidence review may not reflect how deep learning models actually fail. Ask specifically about the predicate device and what clinical evidence was reviewed."
+  },
+  {
+    id: 4,
+    cat: "💊 PHARMACY",
+    name: "Drug-Drug Interaction Reference Database",
+    desc: "A clinical pharmacology database integrated into the EHR that displays documented drug-drug interactions, contraindications, and relevant pharmacokinetic information when a medication is ordered. The system presents information for clinician review — it does not automatically prevent orders or make dosing recommendations.",
+    details: ["Displays evidence-based information", "Does not make independent recommendations", "Clinician can review the evidence directly", "No physiological signal processing"],
+    correct: 2,
+    rationale: "This is CDSS — exempt from FDA oversight. It meets the key CDSS exemption criteria: it provides evidence-based information that the clinician can independently review and evaluate. It does not make a clinical recommendation that the clinician must act on — it presents data for clinical judgment. This is the paradigm case of exempt CDSS.",
+    dnp: "Exempt does not mean 'no governance needed.' If the database is outdated, contains errors, or has systematic gaps for certain drug classes, patient harm can result. Your institution is responsible for vetting and maintaining it — FDA oversight absence means institutional due diligence is the only safety check."
+  },
+  {
+    id: 5,
+    cat: "❤️ CARDIOLOGY",
+    name: "AI ECG Interpretation Algorithm",
+    desc: "An AI model that analyzes 12-lead ECG waveforms and generates automated interpretations including rhythm diagnosis, interval measurements, and flags for specific conditions (e.g., ST elevation, atrial fibrillation, QTc prolongation). The output includes diagnostic labels intended to support or replace initial ECG reads.",
+    details: ["Processes physiological signals (ECG waveforms)", "Generates diagnostic labels", "Used for cardiac condition management", "May replace initial human read"],
+    correct: 3,
+    rationale: "SaMD — FDA clearance required. This tool processes physiological signals (ECG waveforms) and generates diagnostic output intended to drive clinical management of serious cardiac conditions. AI ECG interpretation tools are among the most common SaMD categories — most are cleared via 510(k). The AliveCor and Apple Watch ECG features, FDA-cleared AI Holter analysis tools, and hospital ECG AI systems all fall in this category.",
+    dnp: "ECG AI is particularly high-stakes because misclassification of ST-elevation MI or fatal arrhythmias can be immediately life-threatening. When a tool is cleared via 510(k) for this function, the evidence bar is 'substantial equivalence' — not 'demonstrated accuracy for your patient population.'"
+  },
+  {
+    id: 6,
+    cat: "📊 POPULATION HEALTH",
+    name: "Predictive Care Gap Identification Dashboard",
+    desc: "A population health platform that analyzes claims data, EHR records, and lab results to identify patients who are overdue for preventive care (vaccinations, screenings, wellness visits). It generates lists of patients for outreach, with no recommendations about clinical management of individual patients' conditions.",
+    details: ["Preventive care — not acute/serious conditions", "Generates outreach lists, not diagnoses", "No physiological signal processing", "Administrative / population management function"],
+    correct: 2,
+    rationale: "This is best classified as CDSS — likely exempt. It provides information to support care coordination decisions based on data clinicians can independently review, and it is not intended to diagnose or manage serious conditions. Preventive care gap tools generally fall in the exempt CDSS category because they support administrative and quality-improvement workflows rather than driving clinical management of individual patients.",
+    dnp: "The bias risk here is significant even though it's exempt. If the algorithm has gaps in identifying care needs for Medicaid patients or specific demographic groups, your preventive care equity is compromised — with no FDA safety net and only institutional oversight as the check."
+  },
+  {
+    id: 7,
+    cat: "🔬 PATHOLOGY",
+    name: "AI Digital Pathology — Cancer Tissue Classification",
+    desc: "A deep learning model that analyzes digitized pathology slides and classifies tissue samples as benign, pre-malignant, or malignant, with confidence scores and highlighted regions of interest. The output is designed to support — or in some cases replace — pathologist review for certain tissue types.",
+    details: ["Analyzes medical images (pathology slides)", "Generates cancer diagnosis/classification", "Drives treatment decision-making", "High-stakes clinical outcome"],
+    correct: 3,
+    rationale: "SaMD — FDA clearance required, and this is high-risk SaMD. AI pathology tools that classify tissue as malignant or benign directly drive some of the highest-stakes decisions in medicine (biopsy interpretation, cancer staging, treatment selection). These tools are typically cleared via 510(k) or De Novo — though there is increasing argument that PMA-level evidence should be required given the stakes.",
+    dnp: "AI pathology is one of the fastest-growing clinical AI sectors. When your institution considers adopting one, demand external validation data specifically from populations resembling yours — academic medical center validation does not automatically transfer to community hospital performance."
+  },
+  {
+    id: 8,
+    cat: "📝 DOCUMENTATION",
+    name: "Clinical Calculator — Framingham Cardiovascular Risk Score",
+    desc: "A digital version of the Framingham 10-year cardiovascular risk calculation tool embedded in the EHR. The clinician enters patient values (age, cholesterol, BP, smoking status) and the calculator outputs the 10-year CVD risk percentage based on the published Framingham equation.",
+    details: ["Clinician enters values manually", "Displays result of a known published formula", "Clinician interprets the output independently", "No proprietary AI model or signal processing"],
+    correct: 2,
+    rationale: "CDSS — exempt. This is a classic exempt CDSS: it performs a calculation based on a published, transparent formula that the clinician can independently verify. There is no black-box ML model, no physiological signal processing, and the clinician can check the math. This is the paradigm case of a clinical calculator that falls outside FDA oversight.",
+    dnp: "Even though this is exempt, the underlying Framingham equation has documented limitations for non-white and non-male populations — the equation was developed primarily on white, male Framingham cohort participants. 'Exempt from FDA oversight' does not mean 'validated for your patient population.'"
+  },
+  {
+    id: 9,
+    cat: "🧠 MENTAL HEALTH",
+    name: "AI Mental Health Chatbot — Depression Screening & Support",
+    desc: "A consumer-facing AI chatbot marketed directly to patients. It conducts PHQ-9 style screenings, provides cognitive behavioral therapy (CBT) exercises, and generates risk flags for depression and anxiety. It is available via mobile app. The developer markets it as a mental health support tool — not a medical device.",
+    details: ["Patient-facing application", "Generates mental health risk assessments", "Intended to influence clinical/behavioral decisions", "Developer claims 'wellness' not 'medical device'"],
+    correct: 3,
+    rationale: "SaMD — FDA oversight likely required, and this is a contested but important category. Tools that conduct structured mental health screenings (PHQ-9 equivalent), generate diagnostic risk scores, and make recommendations intended to influence clinical management of mental health conditions are increasingly being scrutinized as SaMD. FDA has issued guidance that 'wellness' labeling does not automatically exempt a product that functions as a medical device. Several AI mental health apps are under FDA review.",
+    dnp: "This is a clinically important gap: many patients your institution serves may be using unregulated mental health AI tools between appointments. Understanding the regulatory landscape helps you counsel patients about what these tools are — and are not — clinically authorized to do."
+  },
+  {
+    id: 10,
+    cat: "🏃 WELLNESS",
+    name: "General Wellness Activity Tracker with Heart Rate Monitoring",
+    desc: "A consumer fitness wearable that tracks step count, sleep, and continuous heart rate using optical sensors. It provides general wellness summaries and activity recommendations. It is not marketed or cleared for any specific medical condition and does not generate diagnostic outputs.",
+    details: ["General wellness / fitness purpose only", "Not marketed for specific medical conditions", "No diagnostic output or clinical recommendations", "Consumer, not clinical device"],
+    correct: 1,
+    rationale: "Non-device software — not regulated by FDA as a medical device. General wellness devices that track fitness metrics without claiming to diagnose, treat, or prevent specific medical conditions fall outside FDA's device regulation. The key distinction: purpose and marketing claims, not the technology itself. The moment a wearable claims to detect atrial fibrillation (as Apple Watch now does), it crosses into SaMD territory and requires FDA clearance.",
+    dnp: "The Apple Watch example is instructive: the same hardware — optical heart rate sensor — is non-device in wellness mode and SaMD when marketed and cleared for AFib detection. Purpose and marketing claims determine regulatory classification, not the underlying technology."
+  }
+];
+
+// ── State ──────────────────────────────────────────────────────────────────
+let score = 0;
+let current = 0;
+let results = [];
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function upScore(pts){
+  score += pts;
+  const el = document.getElementById('scoreDisplay');
+  el.textContent = score;
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+}
+function setProgress(pct){ document.getElementById('progressBar').style.width = pct+'%'; }
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function initDots(){
+  const dots = document.getElementById('msDots');
+  dots.innerHTML = '';
+  TOOLS.forEach((_,i)=>{
+    const d = document.createElement('div');
+    d.className = 'ms-dot';
+    d.id = 'dot'+i;
+    d.textContent = i+1;
+    dots.appendChild(d);
+  });
+}
+
+function renderCard(){
+  const t = TOOLS[current];
+  document.getElementById('cardNum').textContent = `TOOL ${current+1} OF ${TOOLS.length}`;
+  document.getElementById('toolCat').textContent = t.cat;
+  document.getElementById('toolName').textContent = t.name;
+  document.getElementById('toolDesc').textContent = t.desc;
+
+  const dr = document.getElementById('detailRow');
+  dr.innerHTML = '';
+  t.details.forEach(d=>{
+    const chip = document.createElement('div');
+    chip.className = 'detail-chip';
+    chip.innerHTML = `<span>🔹</span> ${d}`;
+    dr.appendChild(chip);
+  });
+
+  // Reset buttons
+  [1,2,3].forEach(n=>{
+    const btn = document.getElementById('btn'+n);
+    btn.className = `cls-btn tier${n}`;
+  });
+  const fp = document.getElementById('feedbackPanel');
+  fp.className = 'feedback-panel';
+  fp.innerHTML = '';
+  document.getElementById('btnNextCard').classList.remove('show');
+  document.getElementById('navProgress').textContent = 'Choose a classification to continue';
+
+  // Animate
+  const card = document.getElementById('gameCard');
+  card.classList.remove('slide-in');
+  void card.offsetWidth;
+  card.classList.add('slide-in');
+}
+
+function classify(tier){
+  const t = TOOLS[current];
+  const correct = (tier === t.correct);
+  results.push({tool: t.name, correct, tier, correctTier: t.correct});
+
+  // Style buttons
+  [1,2,3].forEach(n=>{
+    const btn = document.getElementById('btn'+n);
+    btn.classList.add('answered');
+    if(n === t.correct) btn.classList.add(tier===t.correct && n===tier ? 'correct-ans' : 'show-correct');
+    else if(n === tier && !correct) btn.classList.add('wrong-ans');
+  });
+
+  // Feedback
+  const fp = document.getElementById('feedbackPanel');
+  const tierNames = {1:'Non-Device Software',2:'CDSS — Exempt',3:'SaMD — FDA Required'};
+  const tierColors = {1:'var(--green)',2:'var(--amber)',3:'var(--red)'};
+  const icon = correct ? '✅' : '❌';
+  fp.innerHTML = `
+    <div class="fb-head">${icon} ${correct ? `Correct! <span class="pts-flash">+25 pts</span>` : `Not quite — Correct classification: <strong style="color:${tierColors[t.correct]};">Tier ${t.correct}: ${tierNames[t.correct]}</strong>`}</div>
+    <div class="fb-rationale">${t.rationale}</div>
+    <div class="fb-dnp"><strong>DNP lens:</strong> ${t.dnp}</div>`;
+  fp.className = 'feedback-panel '+(correct?'correct-fb':'wrong-fb')+' show';
+
+  if(correct) upScore(25);
+
+  // Update dot
+  const dot = document.getElementById('dot'+current);
+  dot.className = 'ms-dot '+(correct?'correct':'wrong');
+  dot.textContent = correct ? '✓' : '✗';
+
+  document.getElementById('msText').textContent = `${current+1} / ${TOOLS.length}`;
+  document.getElementById('navProgress').textContent = correct ? '✅ Correct!' : `❌ Correct answer: Tier ${t.correct}`;
+  document.getElementById('btnNextCard').classList.add('show');
+  setProgress(Math.round(((current+1)/TOOLS.length)*90));
+}
+
+function nextCard(){
+  current++;
+  if(current >= TOOLS.length){ showResultsScreen(); return; }
+  renderCard();
+  window.scrollTo({top:document.getElementById('gameCard').offsetTop-80,behavior:'smooth'});
+}
+
+function showResultsScreen(){
+  setProgress(100);
+  const pct = Math.round(score/250*100);
+  document.getElementById('rh-score').textContent = score;
+  document.getElementById('rh-bar').style.width = pct+'%';
+
+  let emoji='💪', title='Good Work', note='';
+  if(score>=225){emoji='🏆';title='Regulatory Expert!';note='Excellent — you correctly classified 9 or 10 tools. Your SaMD literacy is sharp.';}
+  else if(score>=175){emoji='⭐';title='Strong Performance';note='You got most right. Review the ones you missed — the CDSS vs SaMD distinction is the most tested.';}
+  else if(score>=100){emoji='📖';title='Developing Literacy';note='Consider retaking. Focus on the key SaMD trigger: physiological signal processing + serious condition management.';}
+  else{emoji='📚';title='Keep Practicing';note='Retake and read the feedback carefully. The regulatory framework is directly tested in Paper 2.';}
+  document.getElementById('rh-emoji').textContent=emoji;
+  document.getElementById('rh-title').textContent=title;
+  document.getElementById('rh-note').textContent=pct+'% · '+note;
+
+  const tierNames={1:'Non-Device',2:'CDSS Exempt',3:'SaMD — FDA'};
+  const tierClass={1:'tier-t1',2:'tier-t2',3:'tier-t3'};
+  let rows='';
+  results.forEach((r,i)=>{
+    rows+=`<div class="rd-row">
+      <div class="rd-icon">${r.correct?'✅':'❌'}</div>
+      <div class="rd-tool">${TOOLS[i].name}</div>
+      <div class="rd-tier ${tierClass[r.correctTier]}">${tierNames[r.correctTier]}</div>
+      <div class="rd-pts">${r.correct?'+25':'+0'}</div>
+    </div>`;
+  });
+  document.getElementById('resultRows').innerHTML=rows;
+  showScreen('screen-results');
+}
+
+function downloadCert(){
+  const name=(document.getElementById('studentName').value||'').trim();
+  if(!name){
+    const inp=document.getElementById('studentName');
+    inp.style.borderColor='var(--red)';
+    inp.placeholder='Please enter your name first';
+    inp.focus();
+    setTimeout(()=>{inp.style.borderColor='';inp.placeholder='Your Full Name';},2500);
+    return;
+  }
+  const pct=Math.round(score/250*100);
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const timeStr=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  const gradeColor=pct>=80?'#15803D':pct>=50?'#B45309':'#DC2626';
+  const gradeWord=pct>=80?'Proficient':pct>=50?'Developing':'Needs Review';
+  const tierNames={1:'Non-Device Software',2:'CDSS — Exempt',3:'SaMD — FDA Required'};
+  let qRows='';
+  results.forEach((r,i)=>{
+    qRows+=`<tr><td style="padding:6px 10px;border-bottom:1px solid #E2E8F0;font-size:11px;color:#374151;">${TOOLS[i].name}</td><td style="padding:6px 10px;border-bottom:1px solid #E2E8F0;text-align:center;font-size:11px;color:#374151;">${tierNames[r.correctTier]}</td><td style="padding:6px 10px;text-align:center;border-bottom:1px solid #E2E8F0;font-size:12px;">${r.correct?'✅':'❌'}</td><td style="padding:6px 10px;text-align:center;border-bottom:1px solid #E2E8F0;font-size:11px;font-weight:700;color:${r.correct?'#15803D':'#DC2626'};">${r.correct?'25':'0'}</td></tr>`;
+  });
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificate — ${esc(name)}</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#111;}@page{size:A4;margin:0;}
+.pg{width:210mm;min-height:297mm;padding:0;}
+.hdr{background:#0F1E33;padding:30px 44px 24px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.prog{font-size:9px;letter-spacing:2px;color:#E0A820;font-weight:700;text-transform:uppercase;margin-bottom:8px;}
+.act{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px;}
+.course{font-size:12px;color:#8899AA;margin-bottom:18px;}
+.seal{display:inline-flex;flex-direction:column;align-items:center;background:rgba(200,144,10,0.15);border:2px solid #C8900A;border-radius:50%;width:90px;height:90px;justify-content:center;}
+.si{font-size:34px;}.sl{font-size:7px;letter-spacing:1.5px;color:#E0A820;font-weight:700;margin-top:2px;}
+.body{padding:24px 44px;}
+.award{text-align:center;font-size:11px;color:#6B7280;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;margin-top:4px;}
+.name{text-align:center;font-size:30px;font-weight:800;color:#0F1E33;border-bottom:3px solid #C8900A;padding-bottom:8px;margin-bottom:6px;}
+.dl{text-align:center;font-size:11px;color:#6B7280;margin-bottom:18px;}
+.sr{display:flex;gap:0;border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;margin-bottom:16px;}
+.sc{flex:1;padding:12px 8px;text-align:center;border-right:1px solid #E2E8F0;}
+.sc:last-child{border-right:none;}
+.sv{font-size:26px;font-weight:900;}.sl2{font-size:8px;letter-spacing:1px;color:#9CA3AF;text-transform:uppercase;margin-top:3px;}
+.sh{font-size:8px;letter-spacing:1.5px;font-weight:700;color:#C8900A;text-transform:uppercase;margin-bottom:6px;margin-top:14px;padding-bottom:4px;border-bottom:1px solid #E2E8F0;}
+table{width:100%;border-collapse:collapse;}.th td{background:#0F1E33;color:#fff;font-size:10px;font-weight:700;padding:7px 10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;justify-content:center;}
+.badge{background:#F0F8F4;border:1px solid #B8D8C8;border-radius:20px;padding:4px 12px;font-size:10px;color:#1A7A3A;font-weight:600;}
+.kt{margin-top:14px;background:#F5F8FC;border:1px solid #CBD5E1;border-radius:8px;padding:12px 16px;}
+.kt-h{font-size:9px;font-weight:700;letter-spacing:1px;color:#0E7A8A;text-transform:uppercase;margin-bottom:8px;}
+.kt-r{display:flex;gap:8px;margin-bottom:6px;font-size:10px;color:#374151;line-height:1.5;}
+.kt-n{background:#12A0B4;color:#fff;font-size:9px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ft{margin-top:16px;border-top:1px solid #E2E8F0;padding-top:12px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px;}
+.sig{font-size:9px;color:#9CA3AF;line-height:1.7;}.sigln{border-top:1px solid #D1D5DB;width:160px;margin-top:24px;padding-top:4px;}
+.meta{font-size:8px;color:#D1D5DB;text-align:right;line-height:1.7;}
+</style></head><body><div class="pg">
+<div class="hdr">
+  <div class="prog">DNP Program · AI in Advanced Nursing Practice</div>
+  <div class="act">⚖️ Clearance or No Clearance?</div>
+  <div class="course">Week 4: Regulatory, Legal & Policy Landscape</div>
+  <div class="seal"><div class="si">⚖️</div><div class="sl">COMPLETED</div></div>
+</div>
+<div class="body">
+  <div class="award">This certifies that</div>
+  <div class="name">${esc(name)}</div>
+  <div class="dl">completed the FDA SaMD classification challenge on ${dateStr} at ${timeStr}</div>
+  <div class="sr">
+    <div class="sc"><div class="sv" style="color:#0F1E33;">${score}</div><div class="sl2">Score</div></div>
+    <div class="sc"><div class="sv" style="color:#0F1E33;">250</div><div class="sl2">Possible</div></div>
+    <div class="sc"><div class="sv" style="color:#0F1E33;">${pct}%</div><div class="sl2">Percent</div></div>
+    <div class="sc"><div class="sv" style="color:${gradeColor};font-size:16px;">${gradeWord}</div><div class="sl2">Performance</div></div>
+  </div>
+  <div class="badges">
+    <div class="badge">🟢 Non-Device Software classification</div>
+    <div class="badge">🟡 CDSS Exempt classification</div>
+    <div class="badge">🔴 SaMD FDA Oversight classification</div>
+  </div>
+  <div class="sh">Classification Results — All 10 Tools</div>
+  <table><tr class="th"><td>Tool</td><td style="width:120px;">Correct Classification</td><td style="width:50px;text-align:center;">Result</td><td style="width:50px;text-align:center;">Points</td></tr>${qRows}
+  <tr><td style="padding:7px 10px;font-size:12px;font-weight:700;color:#0F1E33;background:#F0F4F8;" colspan="3">TOTAL</td><td style="padding:7px 10px;text-align:center;font-size:14px;font-weight:900;color:#0F1E33;background:#F0F4F8;">${score}/250</td></tr></table>
+  <div class="kt"><div class="kt-h">Key Regulatory Principles Demonstrated</div>
+    <div class="kt-r"><div class="kt-n">1</div><div>FDA classification depends on function and marketing claims — not technology type. Same hardware can be Tier 1 or Tier 3 depending on intended use.</div></div>
+    <div class="kt-r"><div class="kt-n">2</div><div>CDSS exemption requires clinician ability to independently review the basis for the recommendation — display of data is not the same as a clinical recommendation.</div></div>
+    <div class="kt-r"><div class="kt-n">3</div><div>SaMD triggers: physiological signal processing + serious condition management + driving clinical management decisions.</div></div>
+    <div class="kt-r"><div class="kt-n">4</div><div>FDA clearance via 510(k) means substantial equivalence — not demonstrated safety, efficacy, or equity across all populations.</div></div>
+  </div>
+  <div class="ft">
+    <div class="sig"><div class="sigln">Instructor Signature & Date</div></div>
+    <div class="meta">Clearance or No Clearance? · Week 4<br>Regulatory, Legal & Policy Landscape<br>Completed: ${dateStr}<br>SLO 2 · SLO 3 · SLO 4 | AACN 1, 6, 9</div>
+  </div>
+</div></div></body></html>`;
+  const win=window.open('','_blank','width=900,height=700');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(),600);
+}
+
+function startGame(){
+  current=0; score=0; results=[];
+  document.getElementById('scoreDisplay').textContent='0';
+  setProgress(0);
+  initDots();
+  renderCard();
+  showScreen('screen-game');
+}
+
+function restart(){
+  showScreen('screen-intro');
+  score=0; current=0; results=[];
+  document.getElementById('scoreDisplay').textContent='0';
+  setProgress(0);
+}
+</script>
+</body>
+</html>

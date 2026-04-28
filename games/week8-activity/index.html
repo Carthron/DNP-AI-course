@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Week 7-8 Activity - DNP AI Course - NURS 843</title>
+<style>
+  :root {
+    --bg: #0D2137; --bg-2: #081824; --navy: #1B3A5C; --navy-2: #142A45;
+    --teal: #0E9AA7; --teal-lt: #0ABFCC; --gold: #F0A500; --red: #E05252;
+    --purple: #7D3C98; --green: #27AE60; --white: #FFFFFF;
+    --dim: #C8D3DF; --muted: #8899AA;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--bg); color:var(--white);
+    font-family: -apple-system, "Segoe UI", "Calibri", "Helvetica Neue", Arial, sans-serif;
+    line-height:1.5; min-height:100vh; }
+  .accent-bar { height:6px; background:var(--gold); }
+  header { padding:28px 36px 20px; border-bottom:1px solid rgba(255,255,255,.08);
+    display:flex; flex-direction:column; gap:4px; }
+  header .eyebrow { color:var(--gold); font-weight:700; font-size:12px; letter-spacing:2px; text-transform:uppercase; }
+  header h1 { margin:6px 0 4px; font-size:26px; color:var(--teal-lt); font-weight:700; }
+  header .sub { color:var(--dim); font-size:14px; font-style:italic; }
+  header .meta { margin-top:8px; color:var(--muted); font-size:12px; }
+  main { max-width:1080px; margin:0 auto; padding:32px 24px 80px; }
+
+  .module-nav { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
+  .module-nav button { background:var(--navy); color:var(--white); border:none;
+    border-top:4px solid var(--teal); padding:14px 14px 16px; text-align:left;
+    cursor:pointer; border-radius:4px; transition:transform .15s,background .2s;
+    font-family:inherit; }
+  .module-nav button:hover { background:var(--navy-2); transform:translateY(-2px); }
+  .module-nav button.active { background:var(--navy-2); box-shadow:0 0 0 2px rgba(255,255,255,.18); }
+  .module-nav button[data-mod="2"] { border-top-color:var(--red); }
+  .module-nav button[data-mod="3"] { border-top-color:var(--purple); }
+  .module-nav .num { font-size:12px; color:var(--muted); display:block; }
+  .module-nav .title { font-size:16px; font-weight:700; display:block; margin-top:4px; }
+  .module-nav .blurb { font-size:12px; color:var(--dim); display:block; margin-top:6px; line-height:1.4; }
+
+  .module { display:none; }
+  .module.active { display:block; }
+  .module h2 { font-size:22px; color:var(--white); margin:0 0 6px; }
+  .module h2 .accent { display:inline-block; width:10px; height:22px; background:var(--gold);
+    margin-right:12px; vertical-align:-3px; border-radius:2px; }
+  .module .intro { color:var(--dim); font-style:italic; margin:0 0 24px; font-size:14px; }
+
+  .scenario { background:var(--navy); border-left:4px solid var(--teal);
+    padding:18px 22px; border-radius:4px; margin-bottom:22px; }
+  .scenario h3 { margin:0 0 8px; font-size:14px; color:var(--teal-lt);
+    text-transform:uppercase; letter-spacing:1.2px; }
+  .scenario p { margin:0 0 8px; color:var(--white); font-size:14px; }
+  .scenario .data { color:var(--dim); font-family:"Consolas",monospace;
+    font-size:13px; background:var(--bg-2); padding:10px 14px; border-radius:3px; margin-top:10px; }
+
+  .question { background:var(--navy); border-radius:6px; padding:20px 22px; margin-bottom:18px; }
+  .question .q-num { color:var(--gold); font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; }
+  .question .q-text { margin-top:6px; font-size:16px; font-weight:600; color:var(--white); }
+  .options { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+  .options button { background:var(--bg-2); border:1px solid rgba(255,255,255,.08);
+    color:var(--white); text-align:left; padding:12px 16px; cursor:pointer;
+    border-radius:4px; font-family:inherit; font-size:14px; line-height:1.4;
+    transition:background .15s, border-color .15s; }
+  .options button:hover:not([disabled]) { background:var(--navy-2); border-color:var(--teal); }
+  .options button.selected.correct { background:rgba(39,174,96,.18); border-color:var(--green); }
+  .options button.selected.partial { background:rgba(240,165,0,.18); border-color:var(--gold); }
+  .options button.selected.wrong { background:rgba(224,82,82,.18); border-color:var(--red); }
+  .options button[disabled] { cursor:default; opacity:.65; }
+  .options button.selected { opacity:1; }
+
+  .feedback { margin-top:14px; padding:14px 16px; border-radius:4px; font-size:14px;
+    line-height:1.55; display:none; }
+  .feedback.show { display:block; }
+  .feedback.correct { background:rgba(39,174,96,.12); border-left:3px solid var(--green); }
+  .feedback.partial { background:rgba(240,165,0,.12); border-left:3px solid var(--gold); }
+  .feedback.wrong { background:rgba(224,82,82,.12); border-left:3px solid var(--red); }
+  .feedback .label { font-weight:700; text-transform:uppercase; letter-spacing:1px;
+    font-size:12px; margin-right:6px; }
+  .feedback.correct .label { color:var(--green); }
+  .feedback.partial .label { color:var(--gold); }
+  .feedback.wrong .label { color:var(--red); }
+  .feedback .principle { margin-top:10px; color:var(--dim); font-style:italic; font-size:13px; }
+
+  .nav-row { display:flex; justify-content:space-between; align-items:center;
+    margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,.08); }
+  .nav-row button { background:var(--teal); color:var(--bg); border:none;
+    padding:10px 22px; border-radius:4px; font-family:inherit; font-weight:700;
+    cursor:pointer; font-size:13px; letter-spacing:.5px; }
+  .nav-row button:hover { background:var(--teal-lt); }
+  .nav-row button[disabled] { background:var(--muted); cursor:not-allowed; }
+  .nav-row .progress { color:var(--muted); font-size:13px; }
+
+  .summary { background:var(--navy); border-top:4px solid var(--gold);
+    padding:24px 28px; border-radius:4px; margin-top:24px; display:none; }
+  .summary.show { display:block; }
+  .summary h3 { margin:0 0 8px; font-size:18px; color:var(--gold); }
+  .summary .score { font-size:36px; font-weight:700; color:var(--white); margin:8px 0; }
+  .summary p { color:var(--dim); margin:6px 0; }
+  .summary .takeaway { background:var(--bg-2); padding:14px 18px; border-radius:4px;
+    margin-top:14px; font-size:14px; }
+
+  footer { margin-top:60px; padding:18px 36px; background:var(--bg-2);
+    color:var(--muted); font-size:12px; text-align:center; }
+
+  .audit-table { width:100%; border-collapse:collapse; margin-top:12px; font-size:13px; }
+  .audit-table th, .audit-table td { padding:10px 12px; text-align:left;
+    border-bottom:1px solid rgba(255,255,255,.08); }
+  .audit-table th { color:var(--teal-lt); text-transform:uppercase; letter-spacing:1px;
+    font-size:11px; background:var(--bg-2); }
+
+  .committee-vote { background:var(--navy); border-radius:4px; padding:18px 22px; margin:16px 0; }
+  .committee-vote h4 { margin:0 0 8px; color:var(--gold); font-size:13px;
+    text-transform:uppercase; letter-spacing:1px; }
+  .vote-tally { display:flex; gap:18px; margin-top:12px; flex-wrap:wrap; }
+  .vote-tally .role { flex:1 1 240px; background:var(--bg-2); padding:10px 14px;
+    border-radius:4px; border-left:3px solid var(--teal); font-size:13px; }
+  .vote-tally .role .who { font-weight:700; color:var(--white); }
+  .vote-tally .role .stance { color:var(--dim); font-style:italic; margin-top:4px; font-size:12px; }
+
+  .cert-name-row { background:var(--navy); border-left:4px solid var(--gold);
+    padding:18px 22px; border-radius:4px; margin-top:22px; }
+  .cert-name-row label { display:block; color:var(--gold); font-size:12px;
+    font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin-bottom:8px; }
+  .cert-name-row input { width:100%; background:var(--bg-2);
+    border:1px solid rgba(255,255,255,.12); color:var(--white);
+    padding:12px 14px; border-radius:4px; font-family:inherit; font-size:16px;
+    margin-bottom:12px; }
+  .cert-name-row input:focus { outline:none; border-color:var(--teal-lt); }
+  .cert-name-row .cert-actions { display:flex; gap:12px; flex-wrap:wrap; }
+  .cert-name-row button { background:var(--gold); color:var(--bg); border:none;
+    padding:10px 22px; border-radius:4px; font-family:inherit; font-weight:700;
+    cursor:pointer; font-size:13px; letter-spacing:.5px; }
+  .cert-name-row button:hover { background:#FFB833; }
+  .cert-name-row button.secondary { background:var(--teal); color:var(--bg); }
+  .cert-name-row button.secondary:hover { background:var(--teal-lt); }
+
+  .certificate-wrap { display:none; margin-top:28px; }
+  .certificate-wrap.show { display:block; }
+  .certificate { background:linear-gradient(135deg,#0D2137 0%,#142A45 100%);
+    border:2px solid var(--gold); padding:50px 54px 42px; border-radius:6px;
+    position:relative; box-shadow:0 12px 40px rgba(0,0,0,.5); }
+  .certificate::before { content:""; position:absolute; top:14px; left:14px; right:14px; bottom:14px;
+    border:1px solid rgba(240,165,0,.3); border-radius:4px; pointer-events:none; }
+  .certificate .cert-eyebrow { color:var(--gold); font-size:12px; font-weight:700;
+    letter-spacing:4px; text-transform:uppercase; text-align:center; margin-bottom:8px; }
+  .certificate .cert-title { color:var(--teal-lt); font-size:32px; font-weight:700;
+    text-align:center; line-height:1.2; margin:6px 0 4px; }
+  .certificate .cert-sub { color:var(--white); font-size:14px; font-style:italic;
+    text-align:center; margin-bottom:22px; }
+  .certificate .cert-divider { height:2px; background:var(--gold); width:80px; margin:18px auto; }
+  .certificate .cert-presented { color:var(--dim); font-size:13px; text-align:center;
+    letter-spacing:1.5px; text-transform:uppercase; margin-top:14px; }
+  .certificate .cert-recipient { color:var(--white); font-size:32px; font-weight:700;
+    text-align:center; margin:12px 0 6px; font-family:"Georgia","Cambria",serif;
+    border-bottom:1px solid rgba(255,255,255,.15); padding-bottom:16px; }
+  .certificate .cert-body { color:var(--white); font-size:14px; line-height:1.7;
+    text-align:center; margin:18px auto 0; max-width:720px; }
+  .certificate .cert-body strong { color:var(--gold); }
+  .certificate .cert-modules { margin:22px auto 14px; display:grid;
+    grid-template-columns:repeat(3,1fr); gap:12px; max-width:720px; }
+  .certificate .cert-module { background:rgba(0,0,0,.25); padding:10px 12px;
+    border-top:3px solid var(--teal); border-radius:3px; text-align:center; }
+  .certificate .cert-module:nth-child(2) { border-top-color:var(--red); }
+  .certificate .cert-module:nth-child(3) { border-top-color:var(--purple); }
+  .certificate .cert-module .m-name { color:var(--white); font-size:12px;
+    font-weight:700; line-height:1.3; }
+  .certificate .cert-module .m-score { color:var(--teal-lt); font-size:11px; margin-top:4px; }
+  .certificate .cert-score { text-align:center; margin:18px 0 6px; }
+  .certificate .cert-score .num { color:var(--gold); font-size:38px; font-weight:700; line-height:1; }
+  .certificate .cert-score .of { color:var(--dim); font-size:16px; }
+  .certificate .cert-score .designation { color:var(--white); font-size:13px;
+    font-style:italic; margin-top:4px; }
+  .certificate .cert-foot { display:grid; grid-template-columns:1fr 1fr;
+    gap:30px; margin-top:28px; padding-top:18px; border-top:1px solid rgba(255,255,255,.12); }
+  .certificate .cert-sig { text-align:center; }
+  .certificate .cert-sig .sig-name { color:var(--white); font-family:"Georgia","Cambria",serif;
+    font-style:italic; font-size:18px; border-bottom:1px solid rgba(255,255,255,.15);
+    padding-bottom:6px; margin-bottom:6px; }
+  .certificate .cert-sig .sig-label { color:var(--muted); font-size:11px;
+    letter-spacing:1px; text-transform:uppercase; }
+  .certificate .cert-id { text-align:center; color:var(--muted); font-size:10px;
+    letter-spacing:1px; margin-top:18px; font-family:"Consolas",monospace; }
+
+  @media print {
+    body { background:white !important; }
+    header, .module-nav, footer, .nav-row, .module:not(#module-final) { display:none !important; }
+    #module-final h2, #module-final .intro, #module-final .scenario,
+    #module-final .committee-vote, .cert-name-row { display:none !important; }
+    .accent-bar { display:none !important; }
+    main { padding:0 !important; max-width:none; }
+    .certificate-wrap { display:block !important; margin:0; }
+    .certificate { background:white !important; border:3px solid #B88600 !important;
+      color:black !important; box-shadow:none !important; padding:40px 48px;
+      page-break-inside:avoid; }
+    .certificate::before { border-color:#B88600 !important; }
+    .certificate .cert-title { color:#0E9AA7 !important; }
+    .certificate .cert-eyebrow { color:#B88600 !important; }
+    .certificate .cert-divider { background:#B88600 !important; }
+    .certificate .cert-recipient, .certificate .cert-body, .certificate .cert-sub,
+      .certificate .cert-sig .sig-name { color:#1B3A5C !important; }
+    .certificate .cert-presented, .certificate .cert-sig .sig-label,
+      .certificate .cert-id { color:#5A6878 !important; }
+    .certificate .cert-module { background:#F5F5F5 !important; }
+    .certificate .cert-module .m-name { color:#1B3A5C !important; }
+    .certificate .cert-module .m-score { color:#0E9AA7 !important; }
+    .certificate .cert-score .num { color:#B88600 !important; }
+    .certificate .cert-score .of, .certificate .cert-score .designation { color:#1B3A5C !important; }
+    .certificate .cert-recipient, .certificate .cert-foot,
+      .certificate .cert-sig .sig-name { border-color:#1B3A5C !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="accent-bar"></div>
+
+<header>
+  <span class="eyebrow">Week 7 &amp; 8 - Interactive Activity</span>
+  <h1>AI Stewardship in Practice - Decisions Across the Implementation Lifecycle</h1>
+  <span class="sub">Three connected scenarios. Each puts you in the seat of the DNP leader. There is no single right answer - there is a defensible answer.</span>
+  <span class="meta">Dr. Dana Carthron  |  NURS 843  |  Spring 2026  |  Estimated time: 25-35 minutes</span>
+</header>
+
+<main>
+
+  <nav class="module-nav" aria-label="Activity modules">
+    <button data-mod="1" class="active" onclick="goToModule(1)">
+      <span class="num">MODULE 1 - WEEK 7</span>
+      <span class="title">Implementation Decision</span>
+      <span class="blurb">Lead a NASSS-informed pre-deployment review. 4 decision points.</span>
+    </button>
+    <button data-mod="2" onclick="goToModule(2)">
+      <span class="num">MODULE 2 - CROSS-CUT</span>
+      <span class="title">Bias Detective</span>
+      <span class="blurb">Audit a vendor's validation report. Find the entry points for bias.</span>
+    </button>
+    <button data-mod="3" onclick="goToModule(3)">
+      <span class="num">MODULE 3 - WEEK 8</span>
+      <span class="title">Governance Simulation</span>
+      <span class="blurb">Chair an AI governance committee through a real adoption vote.</span>
+    </button>
+  </nav>
+
+  <section class="module active" id="module-1">
+    <h2><span class="accent" style="background:var(--teal)"></span>Module 1 - Implementation Decision</h2>
+    <p class="intro">You are the Director of Nursing Practice &amp; Innovation at Memorial Community, a 240-bed safety-net hospital. Vendor "AcuteIQ" has proposed a sepsis CDSS for go-live in 90 days.</p>
+    <div class="scenario">
+      <h3>The Tool - AcuteIQ Sepsis Predictor v3.2</h3>
+      <p>EHR-integrated predictive model. Generates risk scores hourly for adult inpatients. Vendor reports AUC 0.87, sensitivity 82%, specificity 79%.</p>
+      <div class="data">Validation: Internal 80/20 split (single academic medical center, n=52,000)
+Population: 62% White, 18% Black, 9% Hispanic, 6% Asian, 5% other
+Calibration: Not reported
+Equity stratification: Not reported
+Funding: Vendor-sponsored; lead author employed by AcuteIQ
+Your population: 65% Black/Hispanic, 38% Medicaid, 12% Spanish-preferred, sepsis base rate ~9%</div>
+    </div>
+    <div id="m1-questions"></div>
+    <div class="nav-row">
+      <span class="progress" id="m1-progress">Question 0 of 4</span>
+      <button onclick="goToModule(2)" id="m1-next" disabled>Continue to Module 2</button>
+    </div>
+    <div class="summary" id="m1-summary"></div>
+  </section>
+
+  <section class="module" id="module-2">
+    <h2><span class="accent" style="background:var(--red)"></span>Module 2 - Bias Detective</h2>
+    <p class="intro">You are reviewing AcuteIQ's pre-deployment audit report. The vendor claims "robust performance and no significant bias." Your job: find what the report does - and does not - show.</p>
+    <div class="scenario">
+      <h3>AcuteIQ Validation Audit Report - Excerpt</h3>
+      <p>The vendor provided this stratified table after you specifically requested demographic breakdown.</p>
+      <table class="audit-table">
+        <thead><tr><th>Subgroup</th><th>n</th><th>Sensitivity</th><th>PPV</th><th>Override Rate (pilot)</th></tr></thead>
+        <tbody>
+          <tr><td>Overall</td><td>52,000</td><td>82%</td><td>34%</td><td>31%</td></tr>
+          <tr><td>White, English</td><td>32,240</td><td>85%</td><td>37%</td><td>28%</td></tr>
+          <tr><td>Black, English</td><td>9,360</td><td>79%</td><td>30%</td><td>33%</td></tr>
+          <tr><td>Hispanic, English</td><td>3,640</td><td>78%</td><td>29%</td><td>34%</td></tr>
+          <tr><td>Hispanic, Spanish-preferred</td><td>1,040</td><td>71%</td><td>22%</td><td>42%</td></tr>
+          <tr><td>Asian, English</td><td>3,120</td><td>83%</td><td>33%</td><td>30%</td></tr>
+          <tr><td>Other / Not reported</td><td>2,600</td><td>-</td><td>-</td><td>-</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="m2-questions"></div>
+    <div class="nav-row">
+      <span class="progress" id="m2-progress">Question 0 of 4</span>
+      <button onclick="goToModule(3)" id="m2-next" disabled>Continue to Module 3</button>
+    </div>
+    <div class="summary" id="m2-summary"></div>
+  </section>
+
+  <section class="module" id="module-3">
+    <h2><span class="accent" style="background:var(--purple)"></span>Module 3 - Governance Simulation</h2>
+    <p class="intro">You chair the Memorial AI Governance Committee. The vote on AcuteIQ adoption is today. You hear three positions, then call the question.</p>
+    <div class="committee-vote">
+      <h4>Committee Voices</h4>
+      <div class="vote-tally">
+        <div class="role"><div class="who">CMIO - Adopt now</div><div class="stance">"AUC 0.87 is best-in-class. Pilot data is solid. We can address gaps post-deployment."</div></div>
+        <div class="role" style="border-left-color:var(--gold)"><div class="who">Frontline RN - Hesitant</div><div class="stance">"Override rate 42% for Spanish-preferred patients is a workflow problem AND a justice problem. We need fixes BEFORE go-live."</div></div>
+        <div class="role" style="border-left-color:var(--red)"><div class="who">Equity Officer - Decline</div><div class="stance">"11% sensitivity gap by language preference. We can't deploy a tool that under-detects sepsis in 12% of our patients."</div></div>
+        <div class="role" style="border-left-color:var(--purple)"><div class="who">Patient/Family Advisor - Curious</div><div class="stance">"Patients haven't been told this tool would shape their care. What's our consent and disclosure plan?"</div></div>
+      </div>
+    </div>
+    <div id="m3-questions"></div>
+    <div class="nav-row">
+      <span class="progress" id="m3-progress">Question 0 of 3</span>
+      <button onclick="finishActivity()" id="m3-finish" disabled>Finish Activity</button>
+    </div>
+    <div class="summary" id="m3-summary"></div>
+  </section>
+
+  <section class="module" id="module-final">
+    <h2><span class="accent" style="background:var(--gold)"></span>Synthesis - Your Practice Change</h2>
+    <p class="intro">You completed three decisions across the implementation lifecycle. Now translate them into your own practice.</p>
+
+    <div class="scenario" style="border-left-color:var(--gold)">
+      <h3>Final Reflection</h3>
+      <p>Across the three modules, you earned <strong id="totalCorrect">0 / 22 points</strong>. Strong work - the goal was not perfection but principled reasoning under real institutional constraints.</p>
+      <p style="margin-top:14px"><strong>Now, drawing on this activity and the Week 7-8 content, draft your Practice Change Statement:</strong></p>
+      <div style="background:var(--bg-2); padding:18px 22px; border-radius:4px; margin-top:12px; font-size:14px; line-height:1.8;">
+        Within the next 90 days, in my role as ______________________, I will _________________________________ for the following population: ______________________________________ because Week 7/8 specifically supports this change by ______________________ I will know I have succeeded when ___________________________________________ If I encounter resistance, I will respond by _____________________________________________
+      </div>
+      <p style="margin-top:16px; color:var(--dim); font-style:italic;">Bring your draft to the Week 8 discussion forum - peer-defended in pairs; refined before final capstone submission.</p>
+    </div>
+
+    <div class="committee-vote" style="border-left:4px solid var(--teal)">
+      <h4>The Six Stewardship Stances You Practiced</h4>
+      <ol style="margin:10px 0 0 18px; padding:0; font-size:14px; line-height:1.7; color:var(--white);">
+        <li>Demand <strong>stratified evidence</strong> at the patient level the model will reach.</li>
+        <li>Translate <strong>aggregate metrics into local PPV</strong> at your institution's base rate.</li>
+        <li>Treat <strong>override-rate disparity</strong> as clinical telemetry - not a user-training issue.</li>
+        <li>Pre-define <strong>stop/go criteria</strong> and act on them when they trip.</li>
+        <li>Make <strong>transparency, consent, and human review</strong> patient-facing artifacts, not policies-on-paper.</li>
+        <li>Use <strong>Adopt-with-conditions</strong> as a leadership tool - not as an excuse to delay action.</li>
+      </ol>
+    </div>
+
+    <div class="cert-name-row">
+      <label for="participant-name">Certificate of Completion</label>
+      <input type="text" id="participant-name" placeholder="Type your full name as it should appear on the certificate" autocomplete="name" />
+      <div class="cert-actions">
+        <button onclick="generateCertificate()">Generate Certificate</button>
+        <button class="secondary" onclick="window.print()" id="print-cert-btn" style="display:none">Print / Save as PDF</button>
+      </div>
+    </div>
+
+    <div class="certificate-wrap" id="certificate-wrap">
+      <div class="certificate" id="certificate">
+        <div class="cert-eyebrow">Certificate of Completion</div>
+        <div class="cert-title">AI Stewardship in Nursing Practice</div>
+        <div class="cert-sub">Week 7 &amp; 8 Interactive Activity - DNP AI Course</div>
+        <div class="cert-divider"></div>
+        <div class="cert-presented">Presented to</div>
+        <div class="cert-recipient" id="cert-name">Participant Name</div>
+        <div class="cert-body">
+          for successful completion of the Week 7 &amp; 8 interactive activity in <strong>NURS 843 - DNP AI Course</strong>, demonstrating applied competency in AI implementation, equity-aware appraisal, and governance leadership across the implementation lifecycle.
+        </div>
+        <div class="cert-modules">
+          <div class="cert-module"><div class="m-name">Module 1<br/>Implementation Decision</div><div class="m-score" id="cert-m1">- / 8</div></div>
+          <div class="cert-module"><div class="m-name">Module 2<br/>Bias Detective</div><div class="m-score" id="cert-m2">- / 8</div></div>
+          <div class="cert-module"><div class="m-name">Module 3<br/>Governance Simulation</div><div class="m-score" id="cert-m3">- / 6</div></div>
+        </div>
+        <div class="cert-score">
+          <div><span class="num" id="cert-total">-</span><span class="of"> / 22</span></div>
+          <div class="designation" id="cert-designation">Stewardship Designation</div>
+        </div>
+        <div class="cert-foot">
+          <div class="cert-sig">
+            <div class="sig-name" id="cert-date">Date</div>
+            <div class="sig-label">Date of Completion</div>
+          </div>
+          <div class="cert-sig">
+            <div class="sig-name">Dr. Dana Carthron</div>
+            <div class="sig-label">Course Instructor - NURS 843 - Spring 2026</div>
+          </div>
+        </div>
+        <div class="cert-id" id="cert-id">CERT-ID</div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <span class="progress">Activity complete</span>
+      <button onclick="restartActivity()">Restart Activity</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Week 7 &amp; 8 Activity  -  DNP AI Course (NURS 843)  -  Dr. Dana Carthron  -  Spring 2026
+</footer>
+
+<script>
+var QUESTIONS = {
+  1: [
+    {
+      q: "Q1.  Your first move on receiving the vendor packet.",
+      options: [
+        { t: "Schedule a vendor demo for the nursing leadership team.",
+          v: "wrong",
+          fb: "A demo shows the product, not the evidence. The W6 lesson: appraise evidence before exposure shapes opinion. Demos engineer enthusiasm; appraisals engineer accountability." },
+        { t: "Run a TRIPOD+AI appraisal against the validation report and convene the equity officer to review.",
+          v: "correct",
+          fb: "This is the W6 to W7 bridge. TRIPOD+AI surfaces the methodological gaps (internal-only validation, no calibration, no stratification) before any institutional momentum builds. The equity officer is a co-leader on this work, not a courtesy invite." },
+        { t: "Forward the packet to IT to begin EHR integration scoping.",
+          v: "wrong",
+          fb: "This is the failure mode that produces pilot-by-default. Once integration begins, sunk-cost momentum makes governance review a rubber stamp. Integration scoping comes AFTER the appraisal and AFTER governance approval." },
+        { t: "Send the packet to the CMIO and ask their recommendation.",
+          v: "partial",
+          fb: "Not wrong, the CMIO is a key partner, but you are the DNP leader on this. Outsourcing the appraisal cedes the W7 stewardship role. Bring the CMIO IN to the appraisal you lead." }
+      ],
+      principle: "Stewardship begins with an independent, structured appraisal, before momentum builds."
+    },
+    {
+      q: "Q2.  The vendor reports overall PPV 34%. What is the FIRST adjustment you make for your context?",
+      options: [
+        { t: "Recalculate PPV at your population's actual sepsis base rate (~9%).",
+          v: "correct",
+          fb: "This is the W6 lesson, applied. PPV is base-rate dependent. At 9% prevalence with the reported sensitivity (82%) and specificity (79%): PPV is approximately 28%. Your local PPV is meaningfully different from the vendor's quoted figure." },
+        { t: "Accept the 34% PPV figure, it was published in a peer-reviewed venue.",
+          v: "wrong",
+          fb: "Peer review does not validate a base-rate-dependent statistic for YOUR population. The PPV in the vendor's data reflects the vendor's prevalence, not yours. This is the most common, and most consequential, appraisal error." },
+        { t: "Ask the vendor to recalibrate to your base rate.",
+          v: "partial",
+          fb: "You can ask, but vendors rarely produce institution-specific PPV before contract. You can, and should, calculate it yourself in five minutes. That ability IS your DNP fluency." },
+        { t: "Defer the PPV question until pilot data is available.",
+          v: "wrong",
+          fb: "PPV is a calculable consequence of sensitivity, specificity, and base rate. You don't need pilot data to estimate it. Deferring this calculation means going into pilot blind to expected alert burden." }
+      ],
+      principle: "Aggregate vendor metrics must be translated into local-population terms before any adoption decision."
+    },
+    {
+      q: "Q3.  You are designing the pilot's stop-criteria. The most defensible STOP threshold is:",
+      options: [
+        { t: "Override rate above 40% sustained over two weeks.",
+          v: "partial",
+          fb: "This is a real signal, a 40% override rate is a clinical-judgment-vs-tool conflict, but a single threshold is a one-dimensional stop rule. The defensible criterion is multi-dimensional." },
+        { t: "Equity gap (any subgroup) exceeding 10% disparity in sensitivity.",
+          v: "partial",
+          fb: "Critical signal, Obermeyer-style disparity warrants a stop, but again, a single dimension. The defensible answer is the multi-criteria one." },
+        { t: "Multiple pre-specified criteria (alert volume, override rate, PPV, equity gap, safety incidents), each with its own threshold and any of which can trigger the stop.",
+          v: "correct",
+          fb: "This is the W7 stop/go protocol. No single metric captures pilot failure. Multiple pre-specified, independently-actionable criteria are the only protection against post-hoc rationalization." },
+        { t: "Whatever the vendor's standard pilot protocol specifies.",
+          v: "wrong",
+          fb: "Vendor pilot protocols are designed to demonstrate success. Your stop-criteria are your institution's safety thresholds, they belong to YOU and the governance committee, not the vendor." }
+      ],
+      principle: "Stop/go criteria are multi-dimensional, pre-specified, and institutionally owned."
+    },
+    {
+      q: "Q4.  The vendor refuses to disclose calibration data, citing 'proprietary modeling.' Your response.",
+      options: [
+        { t: "Proceed with pilot, the AUC is strong, calibration can be assessed post-hoc.",
+          v: "wrong",
+          fb: "A model with poor calibration provides risk scores clinicians will distrust within weeks. The fix becomes informal mental adjustment that adds cognitive load and introduces new errors. Calibration is not optional." },
+        { t: "Make calibration disclosure a contractual condition of adoption (W5 clause). Refuse to advance until disclosed.",
+          v: "correct",
+          fb: "This is the W5 plus W7 integration. Proprietary is not a clinical safety answer. The contract is your leverage, calibration data is a deliverable, not a courtesy. Other institutions' refusal teaches vendors what is negotiable." },
+        { t: "Accept the refusal but require calibration plot generation in your pilot data.",
+          v: "partial",
+          fb: "Better than nothing, you can generate a calibration plot from pilot data, but this means going into pilot without baseline. You're paying for the privilege of doing the vendor's QA work, with patients exposed in the meantime." },
+        { t: "Escalate to legal counsel for proprietary-information disclosure under HIPAA.",
+          v: "wrong",
+          fb: "HIPAA does not cover model calibration, this is a contract / safety / clinical question, not a privacy one. The path is through governance and contract, not legal." }
+      ],
+      principle: "Vendor opacity is a contractual problem with a contractual solution."
+    }
+  ],
+  2: [
+    {
+      q: "Q1.  Looking at the stratified table, the most concerning finding is:",
+      options: [
+        { t: "Overall sensitivity 82%, sepsis tools should be 90% or higher.",
+          v: "wrong",
+          fb: "82% is within the published range for sepsis CDSS, not ideal, but not the most concerning finding here. The aggregate metric also masks the bigger problem: subgroup variation." },
+        { t: "11% sensitivity gap and 15% PPV gap between English-preferred and Spanish-preferred Hispanic patients.",
+          v: "correct",
+          fb: "This is the central finding. A 71% sensitivity in the Spanish-preferred subgroup means the tool MISSES nearly 30% of sepsis cases in that population. PPV 22% means most alerts they DO get are false. This is structural inequity in clinical detection, exactly what Obermeyer warned about." },
+        { t: "Black patients have 6 percentage points lower sensitivity than White patients.",
+          v: "partial",
+          fb: "Real and concerning, the 6-point gap is also structural inequity. But the larger and more clinically actionable signal is the language-stratified gap, which compounds racial AND language access disparities." },
+        { t: "The 'Other / Not reported' subgroup of 2,600 patients with no metrics.",
+          v: "partial",
+          fb: "Important finding, 2,600 patients with no performance data is a transparency gap that itself is a governance issue. But the more clinically urgent finding is the documented disparity in the populations where data IS reported." }
+      ],
+      principle: "Stratified evidence reveals what aggregate metrics conceal. Look for compounding disparities."
+    },
+    {
+      q: "Q2.  Mapping the disparity to the W8 bias-pathway, the most likely entry point is:",
+      options: [
+        { t: "Data Collection, Spanish-preferred patients are underrepresented in training data (1,040 of 52,000 = 2%).",
+          v: "correct",
+          fb: "Yes. With 2% representation in training data, the model has insufficient signal to learn patterns specific to this population, which often have additional features such as documentation lag, translation timing, and care-pattern variation. This is the upstream cause." },
+        { t: "Outcome Definition, sepsis is biologically the same regardless of language.",
+          v: "wrong",
+          fb: "Sepsis biology is the same, but outcome LABELING in EHR data is not. Documentation patterns, translation lag, and care pathway variation introduce label noise that the model learns from. Bias enters even when biology is constant." },
+        { t: "Model Training, the algorithm itself is racist.",
+          v: "wrong",
+          fb: "Algorithms do not have intent. The bias is structural, it enters through data and choices, not through the math. This framing misdirects governance attention away from actionable interventions." },
+        { t: "Deployment, the workflow does not accommodate translation services.",
+          v: "partial",
+          fb: "Real factor, workflow inequity amplifies model inequity (W8 lesson #4). But the upstream cause is data underrepresentation. Both must be addressed; data is the deeper fix." }
+      ],
+      principle: "Trace bias upstream. Data underrepresentation is often where the clinical disparity originates."
+    },
+    {
+      q: "Q3.  The vendor offers to 'rebalance' the training data to address the disparity. Your response.",
+      options: [
+        { t: "Accept, rebalancing is the standard technical fix for class imbalance.",
+          v: "wrong",
+          fb: "Rebalancing without addressing the underlying causes (documentation pattern differences, translation timing, care access) often produces worse subgroup performance, the model learns spurious patterns from oversampled minority data. Technical fixes for structural problems are usually traps." },
+        { t: "Refuse, there is nothing the vendor can do.",
+          v: "wrong",
+          fb: "There is plenty the vendor can do: collect more representative data, recalibrate by subgroup, retrain with subgroup-aware loss, document fairness constraints. Refuse surrenders the leverage you have." },
+        { t: "Require: (a) better data collection from Spanish-preferred populations, (b) subgroup-stratified retraining, (c) re-validation with demonstrated parity, (d) all under contractual milestones with stop conditions.",
+          v: "correct",
+          fb: "This is the W8 governance answer. Bias mitigation is not one technique, it is a multi-step program with milestones, accountability, and contractual force. The DNP role is to specify what 'fixed' actually means before the work begins." },
+        { t: "Run a parallel pilot with translation services and see if the disparity closes.",
+          v: "partial",
+          fb: "Good clinical thinking, workflow accommodation is part of the answer (W8 lesson), but it does not fix the underlying model. You'd be carrying the disparity in the tool while compensating around it. The real fix is structural." }
+      ],
+      principle: "Bias mitigation is a multi-step program, not a one-time technical fix."
+    },
+    {
+      q: "Q4.  The single most important addition to your monitoring plan after this audit is:",
+      options: [
+        { t: "Monthly stratified performance dashboard, sensitivity, specificity, PPV, override rate by race, sex, and language preference, with pre-defined disparity thresholds.",
+          v: "correct",
+          fb: "Yes. The W7 monitoring protocol becomes the W8 equity audit when stratified by demographic. This is the operational implementation of ANA Provision 9 and the institutional implementation of algorithmic justice." },
+        { t: "Quarterly review of overall AUC.",
+          v: "wrong",
+          fb: "Aggregate AUC concealed the bias in the original validation; aggregate AUC will conceal post-deployment bias too. Aggregate metrics are insufficient for an equity-bearing decision (W8 takeaway)." },
+        { t: "Annual external equity audit.",
+          v: "partial",
+          fb: "Annual is required (W7 lifecycle), but it is not enough. By the time annual review surfaces a problem, the disparity has been doing harm for many months. Monthly internal plus annual external is the defensible cadence." },
+        { t: "Patient complaint tracking by demographic.",
+          v: "partial",
+          fb: "Important, patient-experience data is part of the picture, but most clinical disparity will not surface in complaints. Stratified clinical performance metrics catch what complaints miss." }
+      ],
+      principle: "Monitoring without stratification is monitoring that confirms aggregate adequacy and conceals harm."
+    }
+  ],
+  3: [
+    {
+      q: "Q1.  The committee asks you to call the question. The defensible vote is:",
+      options: [
+        { t: "ADOPT NOW, the AUC is strong, fix gaps post-deployment.",
+          v: "wrong",
+          fb: "An 11% sensitivity gap by language preference, no calibration data, and missing patient consent plan are not gaps to fix later. They are pre-conditions to deployment. Adopt-now under these facts is a governance failure." },
+        { t: "DECLINE, the disparity is too large to deploy.",
+          v: "partial",
+          fb: "Defensible position, the equity officer's position has integrity. But Decline forecloses options. The harder, more leadership-demanding answer is Adopt-with-conditions, IF specific binding conditions can be met. Decline is correct only if the vendor refuses." },
+        { t: "ADOPT WITH CONDITIONS, specifying: data rebalancing milestone, subgroup re-validation, calibration disclosure, monthly stratified monitoring, patient disclosure plan, and a 90-day stop/go re-vote.",
+          v: "correct",
+          fb: "This is the leadership move. Adopt-with-conditions is the W8 governance tool: it converts each committee voice into a binding deliverable. The vendor must meet the conditions or deployment does not proceed; the institution is committed to monitoring; patients are informed; the equity officer's concern becomes a re-vote trigger, not an objection on record." },
+        { t: "DEFER, request external review before voting.",
+          v: "wrong",
+          fb: "Deferral without specifying what would change the vote is governance theater. If you defer, you must specify the deliverable and the date. Otherwise, this is a non-decision dressed as caution." }
+      ],
+      principle: "Adopt-with-conditions converts committee disagreement into binding institutional accountability."
+    },
+    {
+      q: "Q2.  The patient/family advisor's question, about disclosure and consent, should be answered by:",
+      options: [
+        { t: "Adding a line to the patient registration form.",
+          v: "wrong",
+          fb: "A line on a form is not informed consent for a Tier-1/2 clinical AI tool. This is the bare-minimum that satisfies nothing and meets neither WHO ethics guidance nor patient expectations." },
+        { t: "Designing a patient-facing disclosure: plain-language description of the tool, what it predicts, how it shapes care, the right to request human-only review, translated into all preferred languages.",
+          v: "correct",
+          fb: "This is the W8 transparency standard. Disclosure must be patient-facing, plain-language, multilingual, and include the right to human-only review. The patient/family advisor's question is the institution's accountability test." },
+        { t: "Disclosing only when a patient asks directly.",
+          v: "wrong",
+          fb: "Reactive disclosure embeds a default of opacity. Patients who do not know to ask, the same patients most affected by the disparity in this case, are systematically denied informed participation. This is the opposite of equity-aware governance." },
+        { t: "Following the vendor's standard disclosure language.",
+          v: "partial",
+          fb: "Vendor language is a starting point, but it serves the vendor's interest in minimal disclosure, not your institution's interest in patient trust. Your disclosure is your responsibility." }
+      ],
+      principle: "Patient-facing transparency is patient-facing, by default, in plain language, in the patient's preferred language."
+    },
+    {
+      q: "Q3.  Six months in, the audit shows the disparity has narrowed from 11% to 6% (still above your 5% threshold). The committee re-votes. The defensible position now is:",
+      options: [
+        { t: "Continue deployment, the trend is positive.",
+          v: "partial",
+          fb: "Trend is positive, but you are still above your pre-specified threshold. Continuing without action means the threshold was advisory, not binding. The signal you send to the vendor, and the institution, is that thresholds are negotiable." },
+        { t: "End deployment, the threshold was breached and remains breached.",
+          v: "wrong",
+          fb: "Strictly correct on threshold, but the trend matters. The defensible answer recognizes both: threshold remains breached AND trend is positive. The leadership move uses both pieces of information." },
+        { t: "Maintain deployment WITH new conditions: 90 more days, weekly stratified review, vendor-funded translation workflow audit, AND pre-specified end-deployment trigger if the gap widens.",
+          v: "correct",
+          fb: "This is the W7 plus W8 synthesis. You honor the trend, you honor the threshold, and you tighten the conditions. The vendor knows the institution is serious; the equity officer's concern remains in force as a binding tripwire; the patient/family advisor's transparency expectation is preserved with continued disclosure." },
+        { t: "Lower the threshold from 5% to 7% to match current performance.",
+          v: "wrong",
+          fb: "This is the W8 cautionary tale. Lowering the threshold to match the data is exactly how thresholds become meaningless and equity becomes aspirational instead of operational. Never adjust the threshold to fit the result." }
+      ],
+      principle: "Pre-specified thresholds are honored or refined, never adjusted post-hoc to match performance."
+    }
+  ]
+};
+
+var VALUES = { correct: 2, partial: 1, wrong: 0 };
+var scores = { 1: 0, 2: 0, 3: 0 };
+var answered = { 1: 0, 2: 0, 3: 0 };
+var TOTALS = { 1: 4, 2: 4, 3: 3 };
+
+function renderModule(modId) {
+  var container = document.getElementById('m' + modId + '-questions');
+  container.innerHTML = '';
+  QUESTIONS[modId].forEach(function (qObj, qi) {
+    var qDiv = document.createElement('div');
+    qDiv.className = 'question';
+    qDiv.dataset.qIdx = qi;
+    var qNum = qObj.q.split('.')[0];
+    var qText = qObj.q.replace(/^Q\d+\.\s*/, '');
+    qDiv.innerHTML =
+      '<div class="q-num">' + qNum + '</div>' +
+      '<div class="q-text">' + qText + '</div>' +
+      '<div class="options"></div>' +
+      '<div class="feedback"></div>';
+    var optsDiv = qDiv.querySelector('.options');
+    qObj.options.forEach(function (opt, oi) {
+      var btn = document.createElement('button');
+      btn.textContent = opt.t;
+      btn.dataset.value = opt.v;
+      btn.onclick = function () { selectOption(modId, qi, oi, btn, qDiv); };
+      optsDiv.appendChild(btn);
+    });
+    container.appendChild(qDiv);
+  });
+  updateProgress(modId);
+}
+
+function selectOption(modId, qi, oi, btn, qDiv) {
+  qDiv.querySelectorAll('.options button').forEach(function (b) {
+    b.disabled = true;
+    b.classList.remove('selected');
+  });
+  var opt = QUESTIONS[modId][qi].options[oi];
+  btn.classList.add('selected', opt.v);
+  var fbDiv = qDiv.querySelector('.feedback');
+  fbDiv.className = 'feedback show ' + opt.v;
+  var labels = { correct: 'STEWARDSHIP MOVE', partial: 'DEFENSIBLE BUT INCOMPLETE', wrong: 'GOVERNANCE GAP' };
+  fbDiv.innerHTML =
+    '<span class="label">' + labels[opt.v] + '</span>' +
+    opt.fb +
+    '<div class="principle">-> ' + QUESTIONS[modId][qi].principle + '</div>';
+  scores[modId] += VALUES[opt.v];
+  answered[modId]++;
+  updateProgress(modId);
+}
+
+function updateProgress(modId) {
+  var total = TOTALS[modId];
+  var done = answered[modId];
+  document.getElementById('m' + modId + '-progress').textContent = 'Question ' + done + ' of ' + total;
+  var nextBtnId = modId === 3 ? 'm3-finish' : 'm' + modId + '-next';
+  var nextBtn = document.getElementById(nextBtnId);
+  if (nextBtn) nextBtn.disabled = (done < total);
+  if (done === total) showSummary(modId);
+}
+
+function showSummary(modId) {
+  var summary = document.getElementById('m' + modId + '-summary');
+  if (!summary) return;
+  var max = TOTALS[modId] * 2;
+  var earned = scores[modId];
+  var pct = Math.round((earned / max) * 100);
+  var banner;
+  if (pct >= 85) banner = "Strong stewardship reasoning. You consistently chose multi-dimensional, accountability-binding moves.";
+  else if (pct >= 60) banner = "Defensible reasoning with room to push toward more binding conditions and stratified evidence demands.";
+  else banner = "Several decisions defaulted to vendor-favored or aggregate-only positions. Re-read the W7 stop-criteria and W8 equity-audit slides.";
+  summary.classList.add('show');
+  summary.innerHTML =
+    '<h3>Module ' + modId + ' Result</h3>' +
+    '<div class="score">' + earned + ' / ' + max + '</div>' +
+    '<p>You completed ' + answered[modId] + ' decisions across this module.</p>' +
+    '<div class="takeaway">' + banner + '</div>';
+}
+
+function goToModule(n) {
+  document.querySelectorAll('.module').forEach(function (m) { m.classList.remove('active'); });
+  document.getElementById('module-' + n).classList.add('active');
+  document.querySelectorAll('.module-nav button').forEach(function (b) { b.classList.remove('active'); });
+  var navBtn = document.querySelector('.module-nav button[data-mod="' + n + '"]');
+  if (navBtn) navBtn.classList.add('active');
+  var qContainer = document.getElementById('m' + n + '-questions');
+  if (qContainer && !qContainer.children.length && QUESTIONS[n]) {
+    renderModule(n);
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function finishActivity() {
+  var total = scores[1] + scores[2] + scores[3];
+  document.getElementById('totalCorrect').textContent = total + ' / 22 points';
+  document.querySelectorAll('.module').forEach(function (m) { m.classList.remove('active'); });
+  document.getElementById('module-final').classList.add('active');
+  document.querySelectorAll('.module-nav button').forEach(function (b) { b.classList.remove('active'); });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function designationFor(total) {
+  var pct = total / 22;
+  if (pct >= 0.91) return "Distinguished AI Steward - Exemplary";
+  if (pct >= 0.80) return "AI Steward - Strong Stewardship Reasoning";
+  if (pct >= 0.65) return "Emerging AI Steward - Defensible Decisions";
+  if (pct >= 0.45) return "Participant - Foundational Competency Demonstrated";
+  return "Participant - Continued Practice Recommended";
+}
+
+function generateCertificate() {
+  var nameInput = document.getElementById('participant-name');
+  var name = nameInput.value.trim();
+  if (!name) {
+    nameInput.focus();
+    nameInput.style.borderColor = '#E05252';
+    return;
+  }
+  nameInput.style.borderColor = '';
+  document.getElementById('cert-name').textContent = name;
+  document.getElementById('cert-m1').textContent = scores[1] + ' / 8';
+  document.getElementById('cert-m2').textContent = scores[2] + ' / 8';
+  document.getElementById('cert-m3').textContent = scores[3] + ' / 6';
+  var total = scores[1] + scores[2] + scores[3];
+  document.getElementById('cert-total').textContent = total;
+  document.getElementById('cert-designation').textContent = designationFor(total);
+  var today = new Date();
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var dateStr = months[today.getMonth()] + ' ' + today.getDate() + ', ' + today.getFullYear();
+  document.getElementById('cert-date').textContent = dateStr;
+  var yy = String(today.getFullYear()).slice(-2);
+  var mm = String(today.getMonth() + 1).padStart(2, '0');
+  var dd = String(today.getDate()).padStart(2, '0');
+  var initials = name.split(/\s+/).map(function (s) { return s[0]; }).join('').toUpperCase().slice(0, 3) || 'XXX';
+  var rand = Math.floor(Math.random() * 9000) + 1000;
+  document.getElementById('cert-id').textContent = 'CERT-ID  DNP-AI-W78-' + yy + mm + dd + '-' + initials + '-' + rand;
+  document.getElementById('certificate-wrap').classList.add('show');
+  document.getElementById('print-cert-btn').style.display = 'inline-block';
+  setTimeout(function () {
+    document.getElementById('certificate').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function restartActivity() {
+  scores = { 1: 0, 2: 0, 3: 0 };
+  answered = { 1: 0, 2: 0, 3: 0 };
+  ['m1-summary','m2-summary','m3-summary'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) { el.classList.remove('show'); el.innerHTML = ''; }
+  });
+  ['m1-next','m2-next','m3-finish'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.disabled = true;
+  });
+  ['m1-questions','m2-questions','m3-questions'].forEach(function (id) {
+    document.getElementById(id).innerHTML = '';
+  });
+  var wrap = document.getElementById('certificate-wrap');
+  if (wrap) wrap.classList.remove('show');
+  var printBtn = document.getElementById('print-cert-btn');
+  if (printBtn) printBtn.style.display = 'none';
+  var nameInput = document.getElementById('participant-name');
+  if (nameInput) nameInput.value = '';
+  goToModule(1);
+}
+
+renderModule(1);
+</script>
+
+</body>
+</html>
